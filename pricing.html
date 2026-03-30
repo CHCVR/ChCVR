@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing | FULL BODY VR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-theme="sci-fi">
+    <!-- Navigation -->
+    <nav class="glass-header">
+        <div class="logo">
+            <a href="index.html" style="display:flex; align-items:center; gap:25px; text-decoration:none;">
+                <img src="assets/logo.png" class="logo-img" alt="Logo">
+                <span style="color:var(--clr-primary);">FULL BODY VR</span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">HOME</a>
+            <a href="pricing.html" class="active">PRICING</a>
+            <a href="gallery.html">GALLERY</a>
+        </div>
+        <button class="cta-nav" onclick="window.location.href='pricing.html'">BOOK LOADOUT</button>
+    </nav>
+
+    <main style="padding-top: 150px; min-height: 100vh;">
+        
+        <!-- Video Hero Section -->
+        <section class="video-hero" style="text-align: center; margin: 0 10vw 6rem;">
+            <div class="video-container" style="border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(213, 0, 255, 0.2); margin-bottom: 2rem;">
+                <video src="assets/Takeflight.mp4" autoplay loop muted playsinline style="width: 100%; display: block; object-fit: cover; max-height: 60vh;"></video>
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 4rem; color: var(--clr-text); text-shadow: 0 0 15px var(--clr-primary);">BECOME YOUR OWN <span style="color: var(--clr-primary);">HERO</span> TODAY</h1>
+        </section>
+
+        <section class="tally-engine" id="pricing" style="margin: 0 10vw;">
+            <div style="text-align: center; margin-bottom: 2rem; position: relative; max-width: 100%; height: auto; border-radius: 12px; filter: drop-shadow(0 0 20px var(--clr-primary)); border: 1px solid var(--glass-border); overflow: hidden; margin-left: auto; margin-right: auto; max-height: 400px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.5);">
+                <video id="persona-banner-vid" src="assets/birthdayvid.mp4" autoplay loop muted playsinline style="width: 100%; display: block; object-fit: cover; opacity: 0.9; transition: opacity 0.3s ease; max-height: 400px;"></video>
+                <img id="persona-banner-img" src="assets/fun2.png" alt="Persona Focus Banner" style="width: 100%; display: none; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; max-height: 400px;">
+            </div>
+            <h2 class="section-title">EQUIP YOUR LOADOUT</h2>
+            
+            <div class="loadout-container">
+                <!-- Left: Visual Proof -->
+                <div class="visual-proof glass-panel" id="visual-proof">
+                    <img src="assets/katminis.png" id="preview-image" alt="Hardware Preview">
+                    <div class="preview-overlay">
+                        <h3 id="preview-title" style="color: var(--clr-primary); font-family: var(--font-heading); margin-bottom: 0.5rem; text-shadow: 0 0 10px var(--clr-primary);">KAT WALK MINI S BASE</h3>
+                        <p id="preview-desc" style="color: var(--clr-text);">Full 360° locomotion + VIVE Focus Vision + PC Rig</p>
+                    </div>
+                </div>
+
+                <!-- Right: Configurator -->
+                <div class="configurator">
+                    <!-- Persona Toggle -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                        <div class="persona-toggle">
+                            <button class="active" id="btn-tally-home">FOR HOME PLAY</button>
+                            <button id="btn-tally-event">FOR EVENT PLANNERS</button>
+                        </div>
+                    </div>
+
+                    <!-- HOME CONFIGURATOR -->
+                    <div id="config-home">
+                        <div class="config-card glass-panel selected" style="margin-bottom: 1.5rem;">
+                            <div class="card-header">
+                                <h4>BASE SIMULATION (Required)</h4>
+                                <span class="cost-badge">$300.00 / 2 Hrs</span>
+                            </div>
+                            <p style="color: var(--clr-text-muted); font-size: 0.9rem;">Includes KAT mini S, VIVE Focus Vision, and High-Spec PC.</p>
+                        </div>
+
+                        <div class="config-card glass-panel" id="duration-config" style="margin-bottom: 1.5rem;">
+                            <div class="card-header">
+                                <h4>DEPLOYMENT DURATION</h4>
+                                <div class="duration-counter">
+                                    <button id="btn-minus">-</button>
+                                    <span id="hours-display" style="font-size: 1.5rem; font-weight: bold; width: 30px; text-align: center;">2</span> <span style="font-size: 0.8rem; color: var(--clr-text-muted);">HRS</span>
+                                    <button id="btn-plus">+</button>
+                                </div>
+                            </div>
+                            <p class="cost-badge" style="text-align:right; font-size: 0.85rem; color: var(--clr-text-muted);">+$125.00 / additional hour</p>
+                            <div id="duration-error" class="error-tooltip">Elite immersion requires calibration. 2-hour minimum strictly enforced.</div>
+                        </div>
+
+                        <div class="config-card glass-panel toggle-card" id="card-haptics" data-item="haptics" data-img="assets/bhaptics.png" data-title="TACTICAL HAPTICS" data-desc="bHaptics TactSuit X40 Integration with 40 vibration motors for impact feedback." style="margin-bottom: 1.5rem;">
+                            <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
+                                <div class="toggle-switch"></div>
+                                <div>
+                                    <h4>TACTICAL HAPTICS</h4>
+                                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">bHaptics TactSuit X40 Integration</p>
+                                </div>
+                                <span class="cost-badge" style="margin-left: auto;">+$60.00</span>
+                            </div>
+                        </div>
+
+                        <div class="config-card glass-panel toggle-card" id="card-weapon" data-item="weapon" data-img="assets/striker.png" data-title="WEAPONRY SYSTEM" data-desc="StrikerVR Mavrik-Pro Recoil Blaster with linear actuator feedback.">
+                            <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
+                                <div class="toggle-switch"></div>
+                                <div>
+                                    <h4>WEAPONRY SYSTEM</h4>
+                                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">StrikerVR Mavrik-Pro Recoil Blaster</p>
+                                </div>
+                                <span class="cost-badge" style="margin-left: auto;">+$40.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EVENT CONFIGURATOR -->
+                    <div id="config-event" style="display:none;">
+                        <div class="config-card glass-panel selected" style="margin-bottom: 1.5rem;" data-img="assets/Fun1.png" data-title="THE EVENT SETUP" data-desc="Includes KAT mini S, VIVE Focus Vision, bHaptics TactSuit Pro, and StrikerVR weaponry.">
+                            <div class="card-header">
+                                <h4>EVENT BLOCK (Base)</h4>
+                                <div class="event-block-toggle" style="display:flex; gap: 10px;">
+                                    <button class="variant-btn active" id="btn-half-day" style="font-size: 0.8rem; padding: 0.5rem 1rem;">HALF-DAY (4 HRS)</button>
+                                    <button class="variant-btn" id="btn-full-day" style="font-size: 0.8rem; padding: 0.5rem 1rem;">FULL-DAY (8 HRS)</button>
+                                </div>
+                            </div>
+                            <p style="color: var(--clr-text-muted); font-size: 0.9rem; margin-top: 10px;">Includes KAT mini S, VIVE Focus Vision, bHaptics TactSuit Pro, and StrikerVR weaponry.</p>
+                        </div>
+
+                        <div class="config-card glass-panel" style="margin-bottom: 1.5rem;" data-img="assets/fun2.png" data-title="THE EXPERIENCE" data-desc="Immersive throughput and crowd-gathering attraction.">
+                            <div class="card-header">
+                                <h4>PICK YOUR SCOPE</h4>
+                                <div class="duration-counter">
+                                    <span style="font-size: 0.8rem; color: var(--clr-text-muted); margin-right: 5px;">UNITS:</span>
+                                    <button id="btn-unit-minus">-</button>
+                                    <span id="units-display" style="font-size: 1.2rem; font-weight: bold; width: 25px; text-align: center;">1</span>
+                                    <button id="btn-unit-plus">+</button>
+                                </div>
+                                <div class="duration-counter">    
+                                    <span style="font-size: 0.8rem; color: var(--clr-text-muted); margin: 0 5px 0 15px;">DAYS:</span>
+                                    <button id="btn-day-minus">-</button>
+                                    <span id="days-display" style="font-size: 1.2rem; font-weight: bold; width: 25px; text-align: center;">1</span>
+                                    <button id="btn-day-plus">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-card glass-panel toggle-card" id="card-attendant" data-item="attendant" data-img="assets/Fun1.png" data-title="CERTIFIED GAME MASTER" data-desc="A specialized Game Master dedicated to hygiene, safety strapping, and maximizing high-throughput software cycles." style="margin-bottom: 1.5rem;">
+                            <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
+                                <div class="toggle-switch"></div>
+                                <div>
+                                    <h4>CERTIFIED GAME MASTER</h4>
+                                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">Mandatory for outdoor events.</p>
+                                </div>
+                                <span class="cost-badge" style="margin-left: auto;">+$50/hr</span>
+                            </div>
+                        </div>
+
+                        <div class="config-card glass-panel toggle-card" id="card-outdoor" data-item="outdoor" data-img="assets/fun2.png" data-title="OUTDOOR DEPLOYMENT" data-desc="Includes canopy, generator, router, temperature controlled environment" style="margin-bottom: 1.5rem;">
+                            <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
+                                <div class="toggle-switch"></div>
+                                <div>
+                                    <h4>OUTDOOR DEPLOYMENT</h4>
+                                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">Required for outdoor setup.</p>
+                                </div>
+                                <span class="cost-badge" style="margin-left: auto;">+$300.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Intelligence Tip -->
+                        <div class="glass-panel" style="padding: 1.5rem; border-left: 4px solid var(--clr-primary); background: rgba(0,0,0,0.4);">
+                            <h4 style="color: var(--clr-primary); font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px;">
+                                <span class="pulsing-dot" style="width:8px; height:8px;"></span> INTELLIGENCE TIP
+                            </h4>
+                            <p style="font-size: 0.9rem; color: var(--clr-text-muted); line-height: 1.6;">
+                                With a dedicated attendant and the KAT mini S quick-boarding system, we can cycle 12-15 guests per hour through a high-impact 4-minute demo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Enterprise Modal Gateway -->
+    <div id="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); z-index: 1999; backdrop-filter: blur(5px);"></div>
+    <div id="enterprise-modal" class="glass-header" style="display:none; position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 2000; padding: 3rem; width: 90%; max-width: 600px; border-radius: 12px; background: rgba(10,14,23,0.95); border: 2px solid var(--clr-primary); box-shadow: 0 0 50px rgba(213,0,255,0.4);">
+        <h2 class="section-title" style="font-size: 2rem; margin-bottom: 1rem; color: var(--clr-text);">CUSTOM ENTERPRISE <span style="color: var(--clr-primary);">SOLUTIONS</span></h2>
+        <p style="color: var(--clr-text-muted); margin-bottom: 2rem; line-height: 1.6;">Large-scale deployments (3+ Days or 4+ Units) require specialized logistics matrices. Submit your event intel for a formalized quote.</p>
+        
+        <div style="display:flex; flex-direction:column; gap: 1.5rem;">
+            <input type="text" placeholder="Event Type (e.g. Trade Show, Activation)" style="width:100%; padding:1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 4px; font-family: var(--font-body); outline: none;">
+            <input type="text" placeholder="Venue Location" style="width:100%; padding:1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 4px; font-family: var(--font-body); outline: none;">
+            <input type="text" placeholder="Expected Foot Traffic" style="width:100%; padding:1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 4px; font-family: var(--font-body); outline: none;">
+            
+            <div style="display:flex; gap: 1rem; margin-top: 1rem;">
+                <button class="cta-primary" style="flex:1; font-size: 1rem;">TRANSMIT INTEL</button>
+                <button id="btn-close-modal" class="variant-btn" style="flex:1;">REVERT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tally Footer -->
+    <div class="tally-footer glass-panel">
+        <div class="tally-left">
+            <div class="tally-title">INVESTMENT IN IMMERSION</div>
+            <div class="tally-total">$<span id="live-total">0.00</span></div>
+            <div class="breakdown-toggle" id="breakdown-toggle">View Breakdown ▼</div>
+            <div class="breakdown-dropdown glass-panel" id="breakdown-menu" style="display:none;">
+                <!-- filled by JS -->
+            </div>
+        </div>
+        <div class="tally-right">
+            <button class="cta-primary" id="btn-reserve" style="width: auto; padding: 1rem 4rem; font-size: 1.5rem;">ENTER THE SIMULATION</button>
+        </div>
+    </div>
+
+    <!-- Main Footer -->
+    <footer class="main-footer" style="margin-bottom: 80px;">
+        <div class="footer-content">
+            <div class="footer-socials">
+                <a href="#" class="social-icon">INSTAGRAM</a>
+                <a href="#" class="social-icon">FACEBOOK</a>
+                <a href="#" class="social-icon">X/TWITTER</a>
+                <a href="#" class="social-icon">YOUTUBE</a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 FULL BODY VR. All rights reserved.</p>
+                <a href="terms.html" class="terms-link">Terms & Conditions</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Core | FULL BODY VR</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Override body gradient for true dark dashboard feel */
+        body {
+            background: #05080f;
+            overflow-x: hidden;
+        }
+
+        /* Admin Navigation Bar */
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background: rgba(10, 14, 23, 0.95);
+            border-bottom: 1px solid var(--clr-primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dashboard-container {
+            padding: 3rem 5vw;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Summary Statistics Grid */
+        .stats-grid {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 2rem;
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--clr-primary);
+        }
+
+        .stat-card:hover {
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 20px rgba(213, 0, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--clr-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-family: var(--font-heading);
+            color: white;
+            line-height: 1.2;
+            margin-top: 5px;
+        }
+
+        .stat-value.glow {
+            color: var(--clr-primary);
+            text-shadow: 0 0 15px rgba(213, 0, 255, 0.4);
+        }
+
+        /* Search & Filters */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .control-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem 1rem;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+            font-family: var(--font-body);
+        }
+
+        .control-input:focus {
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 10px rgba(213, 0, 255, 0.2);
+        }
+
+        /* Datatable */
+        .admin-table-wrapper {
+            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .admin-table th {
+            background: rgba(10, 14, 23, 0.9);
+            color: var(--clr-primary);
+            padding: 1.2rem 1rem;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .admin-table td {
+            padding: 1.2rem 1rem;
+            color: var(--clr-text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        .admin-table tr {
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .admin-table tr:hover {
+            background: rgba(213, 0, 255, 0.05);
+        }
+
+        /* Status Tags */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-upcoming {
+            background: rgba(0, 255, 128, 0.1);
+            color: #00ff80;
+            border: 1px solid #00ff80;
+        }
+
+        .status-completed {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid white;
+        }
+
+        .status-canceled {
+            background: rgba(255, 100, 100, 0.1);
+            color: #ff6464;
+            border: 1px solid #ff6464;
+        }
+
+        /* Modal Viewer */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background: rgba(10, 14, 23, 0.95);
+            border: 1px solid var(--clr-primary);
+            border-radius: 12px;
+            width: 95%;
+            max-width: 850px;
+            padding: 2.5rem;
+            box-shadow: 0 0 40px rgba(213, 0, 255, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-tab-nav {
+            display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .modal-tab-btn {
+            background: transparent; color: var(--clr-text-muted); border: none; padding: 0.8rem 1.5rem;
+            font-family: var(--font-heading); font-size: 0.95rem; cursor: pointer; letter-spacing: 1px;
+            border-bottom: 2px solid transparent; transition: all 0.3s ease;
+        }
+        .modal-tab-btn.active {
+            color: var(--clr-primary); border-bottom-color: var(--clr-primary); text-shadow: 0 0 10px rgba(213,0,255,0.4);
+        }
+        .modal-tab-content { display: none; min-height: 200px; }
+        .modal-tab-content.active { display: block; animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: rgb(255, 100, 100);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-label {
+            color: var(--clr-text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            color: white;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-action {
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid;
+            background: transparent;
+        }
+
+        .btn-complete {
+            color: #00ff80;
+            border-color: #00ff80;
+        }
+
+        .btn-complete:hover {
+            background: rgba(0, 255, 128, 0.1);
+        }
+
+        .btn-cancel {
+            color: #ff6464;
+            border-color: #ff6464;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 100, 100, 0.1);
+        }
+
+        .btn-stripe {
+            color: white;
+            border-color: #6772e5;
+            background: #6772e5;
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-stripe:hover {
+            background: #5469d4;
+        }
+
+        .btn-stripe:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Admin Top Nav -->
+    <nav class="admin-nav">
+        <div style="display:flex; align-items:center; gap:20px;">
+            <img src="assets/logo.png" style="height:35px;" alt="Logo">
+            <span style="color:var(--clr-primary); font-family:var(--font-heading); font-size:1.5rem;">CENTRAL
+                COMMAND</span>
+        </div>
+        <div>
+            <span style="color:var(--clr-text-muted); margin-right: 1rem;">Administrator</span>
+            <button class="variant-btn" onclick="window.location.href='index.html'"
+                style="padding: 8px 20px; font-size:0.8rem;">LOGOUT</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+
+        <!-- Summary Stats Overlook -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Deployments Today</div>
+                <div class="stat-value" id="stat-today">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Upcoming Active Holds</div>
+                <div class="stat-value" id="stat-upcoming">0</div>
+            </div>
+            <div class="stat-card" style="border-color: var(--clr-primary);">
+                <div class="stat-label">Total Revenue (Captured)</div>
+                <div class="stat-value glow" id="stat-revenue">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Filtering & Search Row -->
+        <h2 style="color:white; font-family:var(--font-heading); margin-bottom:1rem; font-size:1.8rem;">OPERATIONAL
+            MANIFEST</h2>
+        <div class="table-controls">
+            <input type="text" id="search-input" class="control-input"
+                placeholder="Search Hash, Name, Email, or Phone..." style="flex: 2;">
+            <input type="date" id="filter-date-start" class="control-input" title="Start Date">
+            <input type="date" id="filter-date-end" class="control-input" title="End Date">
+            <select id="filter-status" class="control-input">
+                <option value="all">ALL STATUSES</option>
+                <option value="upcoming" selected>UPCOMING</option>
+                <option value="completed">COMPLETED</option>
+                <option value="canceled">CANCELED</option>
+            </select>
+        </div>
+
+        <!-- Data Table -->
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>REFERENCE HASH</th>
+                        <th>CLIENT NAME</th>
+                        <th>CONTACT ID</th>
+                        <th>DEPLOYMENT DATE</th>
+                        <th>TIME BOX</th>
+                        <th>DURATION</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <div id="no-results" style="display:none; text-align:center; padding: 2rem; color: var(--clr-text-muted);">
+                NO DATABANKS MATCH SECURE QUERY
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Expansion Modal View -->
+    <div class="modal-overlay" id="booking-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 style="color:var(--clr-primary); font-family:var(--font-heading); font-size:1.8rem; margin:0;"
+                    id="modal-title">FBVR-XXXX</h3>
+                <button class="close-btn" onclick="forceCloseModal()">&times;</button>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; text-align:center;">
+                <span id="modal-status" class="status-badge status-upcoming">UPCOMING</span>
+            </div>
+
+            <div class="modal-tab-nav">
+                <button class="modal-tab-btn active" onclick="switchModalTab('dossier')" id="tab-btn-dossier">DOSSIER & LOADOUT</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('logistics')" id="tab-btn-logistics">LOGISTICS VECTOR</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('finance')" id="tab-btn-finance">FINANCIALS</button>
+            </div>
+
+            <!-- Tab 1: Dossier -->
+            <div id="tab-dossier" class="modal-tab-content active">
+                <div class="detail-row"><span class="detail-label">CLIENT DOSSIER</span><span class="detail-value"
+                        id="modal-name">-</span></div>
+                <div class="detail-row"><span class="detail-label">EMAIL ADDRESS</span><span class="detail-value"
+                        id="modal-email">-</span></div>
+                <div class="detail-row"><span class="detail-label">PHONE NUMBER</span><span class="detail-value"
+                        id="modal-phone">-</span></div>
+                <div class="detail-row"><span class="detail-label">GUESTS LOADED</span><span class="detail-value"
+                        id="modal-guests">-</span></div>
+
+                <h4 style="color:var(--clr-primary); margin: 1.5rem 0 0.5rem; font-size:0.9rem; letter-spacing:1px; border-bottom:1px solid var(--glass-border); padding-bottom:5px;">
+                    LOADOUT & EXTRAS</h4>
+                <div class="detail-row"><span class="detail-label">ADD-ONS</span><span class="detail-value"
+                        style="font-size:0.85rem; text-align:right; line-height:1.4;" id="modal-addons">-</span></div>
+                <div class="detail-row" style="flex-direction:column; border-bottom:none; padding-bottom:0;">
+                    <span class="detail-label" style="margin-bottom:0.8rem;">SPECIAL REQUESTS</span>
+                    <p style="color:white; font-size:0.85rem; background:rgba(255,255,255,0.05); padding:1rem; border-radius:6px; margin:0; line-height:1.5;" id="modal-comments">-</p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Logistics -->
+            <div id="tab-logistics" class="modal-tab-content">
+                <div class="detail-row"><span class="detail-label">DATE</span><span class="detail-value"
+                        id="modal-date">-</span></div>
+                <div class="detail-row"><span class="detail-label">WINDOW</span><span class="detail-value"
+                        id="modal-window">-</span></div>
+                <div class="detail-row"><span class="detail-label">DURATION</span><span class="detail-value"
+                        id="modal-duration">-</span></div>
+                <div class="detail-row" style="flex-direction:column; border-bottom:none; margin-bottom: 0.5rem;">
+                    <span class="detail-label" style="margin-bottom:0.8rem;">DEPLOYMENT COORDINATES (DELIVERY ADDRESS)</span>
+                    <p style="color:white; font-size:0.85rem; background:rgba(255,255,255,0.05); padding:1rem; border-radius:6px; margin:0; line-height:1.4;" id="modal-address">-</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Finance -->
+            <div id="tab-finance" class="modal-tab-content">
+                <div class="detail-row"><span class="detail-label">BOOKING CHARGE</span><span class="detail-value"
+                        id="modal-charge">-</span></div>
+                <div class="detail-row"><span class="detail-label">SECURITY HOLD (MANUAL)</span><span class="detail-value"
+                        style="color:rgb(255, 100, 100);" id="modal-hold">+$1,000.00</span></div>
+            </div>
+
+            <div class="action-grid" id="modal-actions" style="margin-top:2rem; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:2rem;">
+                <button class="btn-action btn-cancel" id="btn-cancel-act">ABORT MISSION</button>
+                <button class="btn-action btn-complete" id="btn-comp-act">MARK COMPLETED</button>
+                <button class="btn-action" style="color:var(--clr-primary); border-color:var(--clr-primary);" id="btn-edit-act">EDIT LOGISTICS</button>
+                <button class="btn-action btn-stripe" id="btn-stripe-act" style="grid-column: span 1;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"></path>
+                        <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2-.9 2-2v-2"></path>
+                        <path d="M7 22v-1a2 2 0 0 1 2-2h4a2 2 0 0 0 2-2v-1"></path>
+                        <path d="M21 15v-1a2 2 0 0 0-2-2h-4a2 2 0 0 1-2-2V9"></path>
+                        <path d="M22 8.5 20.6 7c-.4-.3-.6-.8-.6-1.4V2c0-1.1-.9-2-2-2H2"></path>
+                    </svg>
+                    MANAGE HOLD IN STRIPE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MOCK DATABASE CONFIGURATION
+        const todayStr = new Date().toISOString().split('T')[0];
+        const mockBookings = [
+            { id: "FBVR-9XA2M", name: "Elias Vance", email: "elias@blackmesa.com", phone: "(555) 012-3456", address: "Sector C, Test Labs", date: todayStr, startHour: 14, duration: 4, guests: 2, status: "upcoming", charge: 610.00, addons: ["Tactical Haptics", "Attendant Core"], comments: "Please set up in the main lobby." },
+            { id: "FBVR-J8K1P", name: "Sarah Connor", email: "s.connor@sky.net", phone: "(555) 987-6543", address: "14239 Cyberdyne Blvd", date: "2026-03-24", startHour: 10, duration: 8, guests: 5, status: "completed", charge: 1550.00, addons: ["Weaponry System"], comments: "" },
+            { id: "FBVR-4L2ZQ", name: "David Bowman", email: "d.bowman@discovery.org", phone: "(555) 123-9999", address: "Pod Bay 4", date: "2026-03-28", startHour: 18, duration: 2, guests: 1, status: "upcoming", charge: 395.00, addons: [], comments: "Gate code is 4492." },
+            { id: "FBVR-11XCV", name: "Ellen Ripley", email: "ripley@weyland.com", phone: "(555) 444-5555", address: "LV-426 Colony 3", date: "2026-03-20", startHour: 12, duration: 4, guests: 3, status: "canceled", charge: 550.00, addons: ["Outdoor Event Matrix", "Tactical Haptics"], comments: "Beware of the cat." },
+            { id: "FBVR-TR0N8", name: "Kevin Flynn", email: "flynn@encom.com", phone: "(555) 888-0000", address: "99 Tron Lane", date: todayStr, startHour: 18, duration: 2, guests: 4, status: "upcoming", charge: 435.00, addons: ["Weaponry System", "Attendant Core"], comments: "" }
+        ];
+
+        // Format Utilities
+        const formatAmPm = (hour) => {
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const h = hour % 12 || 12;
+            return `${h}:00 ${ampm}`;
+        };
+
+        const formatCurrency = (amt) => {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amt);
+        };
+
+        // DOM Handles
+        const tbody = document.getElementById("table-body");
+        const noResults = document.getElementById("no-results");
+        const searchInput = document.getElementById("search-input");
+        const filterDateStart = document.getElementById("filter-date-start");
+        const filterDateEnd = document.getElementById("filter-date-end");
+        const filterStatus = document.getElementById("filter-status");
+
+        // Set default rapid triage constraints
+        filterDateStart.value = todayStr;
+        filterDateEnd.value = ""; 
+
+        let activeFilterId = null; // for modal actions
+
+        // Engine Core
+        const renderDashboard = () => {
+            const searchTerms = searchInput.value.toLowerCase();
+            const dateStartTerm = filterDateStart.value;
+            const dateEndTerm = filterDateEnd.value;
+            const statusTerm = filterStatus.value;
+
+            let filtered = mockBookings.filter(b => {
+                const matchSearch = b.id.toLowerCase().includes(searchTerms) || b.name.toLowerCase().includes(searchTerms) || b.email.toLowerCase().includes(searchTerms) || b.phone.includes(searchTerms);
+                let matchDate = true;
+                if(dateStartTerm) matchDate = matchDate && b.date >= dateStartTerm;
+                if(dateEndTerm) matchDate = matchDate && b.date <= dateEndTerm;
+
+                const matchStatus = statusTerm === "all" || b.status === statusTerm;
+                return matchSearch && matchDate && matchStatus;
+            });
+
+            // Re-order by newest date logic normally, but here we just order by ID mock string for simplicity
+
+            tbody.innerHTML = "";
+            if (filtered.length === 0) {
+                noResults.style.display = "block";
+            } else {
+                noResults.style.display = "none";
+                filtered.forEach(b => {
+                    const tr = document.createElement("tr");
+                    tr.onclick = () => openBookingModal(b.id);
+                    const endRange = formatAmPm(b.startHour + b.duration);
+                    const tagClass = `status-${b.status}`;
+                    tr.innerHTML = `
+                        <td style="color:white; font-family:monospace; font-weight:bold;">${b.id}</td>
+                        <td>${b.name}</td>
+                        <td><div style="font-size:0.8rem;">${b.email}</div><div style="color:white; font-size:0.85rem;">${b.phone}</div></td>
+                        <td>${b.date}</td>
+                        <td>${formatAmPm(b.startHour)} - ${endRange}</td>
+                        <td style="text-align:center;">${b.duration} Hrs</td>
+                        <td><span class="status-badge ${tagClass}">${b.status}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            calculateKpis();
+        };
+
+        const calculateKpis = () => {
+            const todayCount = mockBookings.filter(b => b.date === todayStr && b.status !== 'canceled').length;
+            const upCount = mockBookings.filter(b => b.status === 'upcoming').length;
+            const rev = mockBookings.reduce((sum, b) => b.status === 'completed' ? sum + b.charge : sum, 0);
+            document.getElementById("stat-today").innerText = todayCount;
+            document.getElementById("stat-upcoming").innerText = upCount;
+            document.getElementById("stat-revenue").innerText = formatCurrency(rev);
+        };
+
+        searchInput.addEventListener("input", renderDashboard);
+        filterDateStart.addEventListener("change", renderDashboard);
+        filterDateEnd.addEventListener("change", renderDashboard);
+        filterStatus.addEventListener("change", renderDashboard);
+
+        // Modal UX Engine
+        const modal = document.getElementById("booking-modal");
+
+        const openBookingModal = (id) => {
+            const b = mockBookings.find(x => x.id === id);
+            if (!b) return;
+            activeFilterId = id;
+            document.getElementById("modal-title").innerText = b.id;
+
+            const mStatus = document.getElementById("modal-status");
+            mStatus.className = `status-badge status-${b.status}`;
+            mStatus.innerText = b.status;
+
+            document.getElementById("modal-name").innerText = b.name;
+            document.getElementById("modal-email").innerText = b.email;
+            document.getElementById("modal-phone").innerText = b.phone;
+            document.getElementById("modal-guests").innerText = b.guests + " Subject(s)";
+
+            document.getElementById("modal-date").innerText = b.date;
+            document.getElementById("modal-window").innerText = `${formatAmPm(b.startHour)} to ${formatAmPm(b.startHour + b.duration)}`;
+            document.getElementById("modal-duration").innerText = b.duration + " Hours";
+
+            // Add-ons & Comments Population
+            document.getElementById("modal-addons").innerHTML = b.addons && b.addons.length > 0 
+                ? b.addons.join("<br>") 
+                : "<span style='color:var(--clr-text-muted);'>No Add-ons Selected</span>";
+            
+            document.getElementById("modal-comments").innerText = b.comments && b.comments.trim() !== "" 
+                ? b.comments 
+                : "No special logistical requests provided.";
+
+            document.getElementById("modal-address").innerText = b.address && b.address.trim() !== ""
+                ? b.address
+                : "Location unmapped.";
+
+            document.getElementById("modal-charge").innerText = formatCurrency(b.charge);
+
+            const btnCancel = document.getElementById("btn-cancel-act");
+            const btnComp = document.getElementById("btn-comp-act");
+            const btnEdit = document.getElementById("btn-edit-act");
+
+            // Reset logic states
+            if (btnEdit) {
+                btnEdit.innerText = "EDIT LOGISTICS";
+                btnEdit.style.color = "var(--clr-primary)";
+                btnEdit.style.borderColor = "var(--clr-primary)";
+                btnEdit.onclick = triggerTimeEdit;
+            }
+
+            if (b.status === "upcoming") {
+                btnCancel.style.display = "block";
+                btnComp.style.display = "block";
+                btnEdit.style.display = "block";
+            } else {
+                btnCancel.style.display = "none";
+                btnComp.style.display = "none";
+                btnEdit.style.display = "none";
+            }
+
+            modal.classList.add("open");
+        };
+
+        const closeModal = (e) => {
+            if (e.target.id === "booking-modal") forceCloseModal();
+        };
+
+        const switchModalTab = (tabName) => {
+            document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-btn-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        };
+
+        const forceCloseModal = () => {
+            modal.classList.remove("open");
+            activeFilterId = null;
+        };
+
+        // Administrator Override Scripts
+        const triggerTimeEdit = () => {
+            const pwd = prompt("AUTHORIZATION REQUIRED\nEnter Encrypted Administrator Override Key:");
+            if (pwd === "FBVR2026" || pwd === "admin") {
+                const b = mockBookings.find(x => x.id === activeFilterId);
+                // Switch DOM to live interactive input bounds
+                document.getElementById("modal-date").innerHTML = `<input type="date" id="edit-date-val" value="${b.date}" class="control-input" style="padding:4px; max-width:140px;">`;
+                document.getElementById("modal-window").innerHTML = `<input type="number" id="edit-hour-val" value="${b.startHour}" min="8" max="22" class="control-input" style="padding:4px; width:70px;" title="Start Hour military syntax">`;
+                document.getElementById("modal-duration").innerHTML = `<input type="number" id="edit-dur-val" value="${b.duration}" min="1" max="14" class="control-input" style="padding:4px; width:70px;">`;
+                document.getElementById("modal-address").innerHTML = `<input type="text" id="edit-addr-val" value="${b.address || ''}" class="control-input" style="padding:4px; width:100%;">`;
+                
+                // Force switch visual tab to Logistical Matrix so operations can view active inputs
+                switchModalTab('logistics');
+
+                // Switch Save mode
+                const editBtn = document.getElementById("btn-edit-act");
+                editBtn.innerText = "SAVE LOGISTICS";
+                editBtn.style.color = "#00ff80";
+                editBtn.style.borderColor = "#00ff80";
+                editBtn.onclick = saveTimeEdit;
+            } else {
+                if(pwd !== null) alert("ACCESS DENIED: Invalid Security Key Signature.");
+            }
+        };
+
+        const saveTimeEdit = () => {
+            const b = mockBookings.find(x => x.id === activeFilterId);
+            const newDate = document.getElementById("edit-date-val").value;
+            const newHour = parseInt(document.getElementById("edit-hour-val").value);
+            const newDur = parseInt(document.getElementById("edit-dur-val").value);
+            const newAddr = document.getElementById("edit-addr-val").value;
+
+            if (!newDate || isNaN(newHour) || isNaN(newDur)) {
+                alert("SYSTEM REJECTION: Corrupt logistics matrix coordinates.");
+                return;
+            }
+
+            b.date = newDate;
+            b.startHour = newHour;
+            b.duration = newDur;
+            b.address = newAddr;
+
+            alert(`DATABASE UPDATED: Time vectors successfully rerouted for ${b.id}`);
+            openBookingModal(activeFilterId); // Visually restamp DOM
+            renderDashboard(); // Re-parse table UI background logic
+        };
+
+        // Mock Action Dispatchers
+        document.getElementById("btn-cancel-act").addEventListener("click", () => {
+            if (!activeFilterId) return;
+            const b = mockBookings.find(x => x.id === activeFilterId);
+            b.status = "canceled";
+            forceCloseModal();
+            renderDashboard();
+        });
+
+        document.getElementById("btn-comp-act").addEventListener("click", () => {
+            if (!activeFilterId) return;
+            const b = mockBookings.find(x => x.id === activeFilterId);
+            b.status = "completed";
+            forceCloseModal();
+            renderDashboard();
+        });
+
+        document.getElementById("btn-stripe-act").addEventListener("click", () => {
+            alert("API INTERCEPT: This would open the encrypted Stripe Dashboard mapping parameter 'pi_intent' to manage hardware hold deductions or full refunds securely.");
+        });
+
+        // Init
+        renderDashboard();
+    </script>
+</body>
+
+</html>
