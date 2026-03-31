@@ -300,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const isConfigH = configHome.style.display !== "none";
                 previewImg.style.opacity = '0';
                 setTimeout(() => {
-                    previewImg.src = isConfigH ? "assets/katminis.png" : "assets/Fun1.png";
+                    previewImg.src = isConfigH ? "assets/Katminis.png" : "assets/Fun1.png";
                     previewTitle.innerText = isConfigH ? "KAT WALK MINI S BASE" : "THE EVENT SETUP";
                     previewDesc.innerText = isConfigH ? "Full 360° locomotion + VIVE Focus Vision + PC Rig" : "Includes KAT mini S, VIVE Focus Vision, bHaptics TactSuit Pro, and StrikerVR weaponry.";
                     previewImg.style.opacity = '1';

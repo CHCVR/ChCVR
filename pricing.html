@@ -21,7 +21,7 @@
             <a href="pricing.html" class="active">PRICING</a>
             <a href="gallery.html">GALLERY</a>
         </div>
-        <button class="cta-nav" onclick="window.location.href='pricing.html'">BOOK LOADOUT</button>
+        <button class="cta-nav" onclick="document.getElementById('pricing').scrollIntoView({behavior: 'smooth'})">BOOK LOADOUT</button>
     </nav>
 
     <main style="padding-top: 150px; min-height: 100vh;">
@@ -36,15 +36,15 @@
 
         <section class="tally-engine" id="pricing" style="margin: 0 10vw;">
             <div style="text-align: center; margin-bottom: 2rem; position: relative; max-width: 100%; height: auto; border-radius: 12px; filter: drop-shadow(0 0 20px var(--clr-primary)); border: 1px solid var(--glass-border); overflow: hidden; margin-left: auto; margin-right: auto; max-height: 400px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.5);">
-                <video id="persona-banner-vid" src="assets/birthdayvid.mp4" autoplay loop muted playsinline style="width: 100%; display: block; object-fit: cover; opacity: 0.9; transition: opacity 0.3s ease; max-height: 400px;"></video>
-                <img id="persona-banner-img" src="assets/fun2.png" alt="Persona Focus Banner" style="width: 100%; display: none; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; max-height: 400px;">
+                <video id="persona-banner-vid" src="assets/Birthdayvid.mp4" autoplay loop muted playsinline style="width: 100%; display: block; object-fit: cover; opacity: 0.9; transition: opacity 0.3s ease; max-height: 400px;"></video>
+                <img id="persona-banner-img" src="assets/Fun2.png" alt="Persona Focus Banner" style="width: 100%; display: none; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; max-height: 400px;">
             </div>
             <h2 class="section-title">EQUIP YOUR LOADOUT</h2>
             
             <div class="loadout-container">
                 <!-- Left: Visual Proof -->
                 <div class="visual-proof glass-panel" id="visual-proof">
-                    <img src="assets/katminis.png" id="preview-image" alt="Hardware Preview">
+                    <img src="assets/Katminis.png" id="preview-image" alt="Hardware Preview">
                     <div class="preview-overlay">
                         <h3 id="preview-title" style="color: var(--clr-primary); font-family: var(--font-heading); margin-bottom: 0.5rem; text-shadow: 0 0 10px var(--clr-primary);">KAT WALK MINI S BASE</h3>
                         <p id="preview-desc" style="color: var(--clr-text);">Full 360° locomotion + VIVE Focus Vision + PC Rig</p>
@@ -95,7 +95,7 @@
                             </div>
                         </div>
 
-                        <div class="config-card glass-panel toggle-card" id="card-weapon" data-item="weapon" data-img="assets/striker.png" data-title="WEAPONRY SYSTEM" data-desc="StrikerVR Mavrik-Pro Recoil Blaster with linear actuator feedback.">
+                        <div class="config-card glass-panel toggle-card" id="card-weapon" data-item="weapon" data-img="assets/Striker.png" data-title="WEAPONRY SYSTEM" data-desc="StrikerVR Mavrik-Pro Recoil Blaster with linear actuator feedback.">
                             <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
                                 <div class="toggle-switch"></div>
                                 <div>
@@ -120,7 +120,7 @@
                             <p style="color: var(--clr-text-muted); font-size: 0.9rem; margin-top: 10px;">Includes KAT mini S, VIVE Focus Vision, bHaptics TactSuit Pro, and StrikerVR weaponry.</p>
                         </div>
 
-                        <div class="config-card glass-panel" style="margin-bottom: 1.5rem;" data-img="assets/fun2.png" data-title="THE EXPERIENCE" data-desc="Immersive throughput and crowd-gathering attraction.">
+                        <div class="config-card glass-panel" style="margin-bottom: 1.5rem;" data-img="assets/Fun2.png" data-title="THE EXPERIENCE" data-desc="Immersive throughput and crowd-gathering attraction.">
                             <div class="card-header">
                                 <h4>PICK YOUR SCOPE</h4>
                                 <div class="duration-counter">
@@ -149,7 +149,7 @@
                             </div>
                         </div>
 
-                        <div class="config-card glass-panel toggle-card" id="card-outdoor" data-item="outdoor" data-img="assets/fun2.png" data-title="OUTDOOR DEPLOYMENT" data-desc="Includes canopy, generator, router, temperature controlled environment" style="margin-bottom: 1.5rem;">
+                        <div class="config-card glass-panel toggle-card" id="card-outdoor" data-item="outdoor" data-img="assets/Fun2.png" data-title="OUTDOOR DEPLOYMENT" data-desc="Includes canopy, generator, router, temperature controlled environment" style="margin-bottom: 1.5rem;">
                             <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
                                 <div class="toggle-switch"></div>
                                 <div>
