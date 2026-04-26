@@ -84,6 +84,17 @@
                             <div id="duration-error" class="error-tooltip">Elite immersion requires calibration. 2-hour minimum strictly enforced.</div>
                         </div>
 
+                        <div class="config-card glass-panel" id="home-unit-config" style="margin-bottom: 1.5rem;">
+                            <div class="card-header">
+                                <h4>NUMBER OF UNITS</h4>
+                                <div style="display:flex; gap: 10px; width: 100%;">
+                                    <button class="variant-btn active" id="btn-home-unit-1" style="flex:1; font-size: 0.8rem; padding: 0.5rem 1rem;">1 UNIT</button>
+                                    <button class="variant-btn" id="btn-home-unit-2" style="flex:1; font-size: 0.8rem; padding: 0.5rem 1rem;">2 UNITS</button>
+                                </div>
+                            </div>
+                            <p class="cost-badge" style="text-align:right; font-size: 0.85rem; color: var(--clr-text-muted);">Additional systems parallel base and hourly rates</p>
+                        </div>
+
                         <div class="config-card glass-panel toggle-card" id="card-haptics" data-item="haptics" data-img="assets/bhaptics.png" data-title="TACTICAL HAPTICS" data-desc="bHaptics TactSuit X40 Integration with 40 vibration motors for impact feedback." style="margin-bottom: 1.5rem;">
                             <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
                                 <div class="toggle-switch"></div>
@@ -123,11 +134,10 @@
                         <div class="config-card glass-panel" style="margin-bottom: 1.5rem;" data-img="assets/Fun2.png" data-title="THE EXPERIENCE" data-desc="Immersive throughput and crowd-gathering attraction.">
                             <div class="card-header">
                                 <h4>PICK YOUR SCOPE</h4>
-                                <div class="duration-counter">
+                                <div style="display:flex; gap: 10px; align-items:center;">
                                     <span style="font-size: 0.8rem; color: var(--clr-text-muted); margin-right: 5px;">UNITS:</span>
-                                    <button id="btn-unit-minus">-</button>
-                                    <span id="units-display" style="font-size: 1.2rem; font-weight: bold; width: 25px; text-align: center;">1</span>
-                                    <button id="btn-unit-plus">+</button>
+                                    <button class="variant-btn active" id="btn-event-unit-1" style="flex:1; font-size: 0.8rem; padding: 0.5rem 1rem;">1 UNIT</button>
+                                    <button class="variant-btn" id="btn-event-unit-2" style="flex:1; font-size: 0.8rem; padding: 0.5rem 1rem;">2 UNITS</button>
                                 </div>
                                 <div class="duration-counter">    
                                     <span style="font-size: 0.8rem; color: var(--clr-text-muted); margin: 0 5px 0 15px;">DAYS:</span>
@@ -179,7 +189,7 @@
     <div id="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); z-index: 1999; backdrop-filter: blur(5px);"></div>
     <div id="enterprise-modal" class="glass-header" style="display:none; position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 2000; padding: 3rem; width: 90%; max-width: 600px; border-radius: 12px; background: rgba(10,14,23,0.95); border: 2px solid var(--clr-primary); box-shadow: 0 0 50px rgba(213,0,255,0.4);">
         <h2 class="section-title" style="font-size: 2rem; margin-bottom: 1rem; color: var(--clr-text);">CUSTOM ENTERPRISE <span style="color: var(--clr-primary);">SOLUTIONS</span></h2>
-        <p style="color: var(--clr-text-muted); margin-bottom: 2rem; line-height: 1.6;">Large-scale deployments (3+ Days or 4+ Units) require specialized logistics matrices. Submit your event intel for a formalized quote.</p>
+        <p style="color: var(--clr-text-muted); margin-bottom: 2rem; line-height: 1.6;">Large-scale deployments (3+ Units) require specialized logistics matrices. Submit your event intel for a formalized quote.</p>
         
         <div style="display:flex; flex-direction:column; gap: 1.5rem;">
             <input type="text" placeholder="Event Type (e.g. Trade Show, Activation)" style="width:100%; padding:1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 4px; font-family: var(--font-body); outline: none;">

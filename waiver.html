@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Waiver | FULL BODY VR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .waiver-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(10, 14, 23, 0.85);
+            border: 1px solid var(--clr-primary);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(213, 0, 255, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--clr-text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            color: white;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 10px rgba(213, 0, 255, 0.2);
+            outline: none;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .minors-section {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid var(--clr-primary);
+        }
+
+        .minors-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .minor-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .btn-add-minor {
+            background: transparent;
+            color: var(--clr-primary);
+            border: 1px dashed var(--clr-primary);
+            padding: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-minor:hover {
+            background: rgba(213, 0, 255, 0.1);
+        }
+
+        .btn-remove {
+            background: rgba(255, 100, 100, 0.1);
+            color: #ff6464;
+            border: 1px solid #ff6464;
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-remove:hover {
+            background: rgba(255, 100, 100, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .terms-box {
+            height: 150px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 6px;
+            color: var(--clr-text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .success-box {
+            text-align: center;
+            padding: 3rem;
+            border: 1px solid #00ff80;
+            background: rgba(10, 14, 23, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 255, 128, 0.2);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .waiver-container { padding: 1.5rem; }
+            .waiver-container > form > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body data-theme="sci-fi">
+
+    <!-- Navigation -->
+    <nav class="glass-header">
+        <div class="logo">
+            <a href="index.html" style="display:flex; align-items:center; gap:25px; text-decoration:none;">
+                <img src="assets/logo.png" class="logo-img" alt="Logo">
+                <span style="color:var(--clr-primary);">FULL BODY VR</span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">HOME</a>
+            <a href="pricing.html">PRICING</a>
+            <a href="gallery.html">GALLERY</a>
+        </div>
+    </nav>
+
+    <main style="padding: 180px 5vw 6rem; min-height: 100vh;">
+        <h1 class="section-title" style="margin-bottom: 2rem;">LIABILITY WAIVER</h1>
+        
+        <div class="waiver-container">
+            <div id="form-error-display" style="display:none; background:rgba(255,100,100,0.1); border:1px solid #ff6464; color:#ff6464; padding:1rem; border-radius:6px; margin-bottom:1.5rem; font-weight:bold; font-size:0.9rem;"></div>
+            
+            <form id="waiver-form">
+                <div class="form-group">
+                    <label class="form-label">Full Legal Name (Must Match Legal ID)</label>
+                    <input type="text" id="w-name" class="form-input" required placeholder="First Name and Last Name">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="w-email" class="form-input" required placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="w-phone" class="form-input" required placeholder="555-123-4567" maxlength="12">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number" id="w-age" class="form-input" required min="18" placeholder="Must be 18+ to sign">
+                    <small style="color:var(--clr-text-muted); display:block; margin-top:5px;">You must be 18 or older to sign this liability waiver.</small>
+                </div>
+
+                <div class="form-group" style="padding: 1rem 0; border-top: 1px dotted var(--glass-border); border-bottom: 1px dotted var(--glass-border);">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="w-is-guardian" style="width: 20px; height: 20px; accent-color: var(--clr-primary);">
+                        I am the primary guardian signing for minors
+                    </label>
+                </div>
+
+                <!-- Dynamic Minors Section -->
+                <div class="minors-section" id="minors-container">
+                    <h4 style="color:var(--clr-primary); margin-bottom: 1rem; font-family: var(--font-heading);">DEPENDANT MINORS</h4>
+                    <p style="color:var(--clr-text-muted); font-size:0.85rem; margin-bottom:1rem;">Please add all minors (under 18) participating under your supervision. Note: Vive Focus VR Headset and Kat Treadmill require participants to be 13+.</p>
+                    
+                    <div id="minors-list">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <button type="button" class="btn-add-minor" onclick="addMinorRow()">+ ADD MINOR</button>
+                </div>
+
+                <div class="form-group" style="margin-top: 2rem;">
+                    <label class="form-label">Terms & Release</label>
+                    <div class="terms-box">
+                        By signing this waiver, I acknowledge that the use of Full Body VR equipment involves physical activity and inherent risks, including falls, collisions, motion sickness, and equipment-related injury. I agree to participate at my own risk and assume full responsibility for any physical injuries or damages to personal property.
+                        <br><br>
+                        I also agree to take full financial responsibility for any damage, loss, or theft of equipment during the rental period, beyond any initial deposits. I authorize Cloud House Corporation to charge my payment method for any damages incurred. 
+                        <br><br>
+                        If signing as a legal guardian, I assume all responsibilities and liabilities on behalf of the listed minors.
+                        <br><br>
+                        <a href="terms.html" target="_blank" style="color:var(--clr-primary); text-decoration:underline;">Review Full Terms & Conditions Master Reference</a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="w-agree" required style="width: 20px; height: 20px; accent-color: var(--clr-primary);">
+                        I have read, understood, and agree to the Terms & Conditions and Liability Release.
+                    </label>
+                </div>
+
+                <button type="submit" class="cta-nav" style="width: 100%; padding: 1.2rem; font-size: 1.1rem; margin-top: 1rem;">SIGN & SUBMIT WAIVER</button>
+            </form>
+        </div>
+    </main>
+
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-box">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#00ff80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h2 style="color: white; font-family: var(--font-heading); margin-bottom: 1rem;">WAIVER SECURED</h2>
+            <p style="color: var(--clr-text-muted); margin-bottom: 2rem;">Your signature has been digitally time-stamped and recorded.</p>
+            <button class="variant-btn" onclick="window.location.href='index.html'">RETURN TO HQ</button>
+        </div>
+    </div>
+
+    <!-- Supabase Integration Matrix -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
+    <script>
+        const guardianCheckbox = document.getElementById('w-is-guardian');
+        const minorsContainer = document.getElementById('minors-container');
+        const minorsList = document.getElementById('minors-list');
+
+        // Toggle Guardian Section
+        guardianCheckbox.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                minorsContainer.classList.add('active');
+                if(minorsList.children.length === 0) addMinorRow();
+            } else {
+                minorsContainer.classList.remove('active');
+            }
+        });
+
+        const addMinorRow = () => {
+            const id = Date.now();
+            const div = document.createElement('div');
+            div.className = 'minor-row';
+            div.id = `minor-${id}`;
+            div.innerHTML = `
+                <input type="text" class="form-input minor-name" placeholder="Minor Full Name" required>
+                <input type="number" class="form-input minor-age" placeholder="Age" required min="5" max="17">
+                <button type="button" class="btn-remove" onclick="document.getElementById('minor-${id}').remove()">X</button>
+            `;
+            minorsList.appendChild(div);
+        };
+
+        // Auto-Format Phone Number Syntax
+        const phoneInput = document.getElementById('w-phone');
+        phoneInput.addEventListener('input', function (e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+
+        document.getElementById('waiver-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const errorBox = document.getElementById("form-error-display");
+            errorBox.style.display = "none";
+            errorBox.innerText = "";
+
+            const name = document.getElementById('w-name').value.trim();
+            const email = document.getElementById('w-email').value.trim();
+            const phone = document.getElementById('w-phone').value.trim();
+            const age = document.getElementById('w-age').value;
+            const isGuardian = document.getElementById('w-is-guardian').checked;
+
+            // Strict Validation Core
+            const nameRegex = /^[A-Za-z]+(?:\s+[A-Za-z]+)+$/;
+            if(!nameRegex.test(name)) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "VALIDATION ERROR: Full legal name requires a First Name and Last Name containing only letters.";
+                return;
+            }
+
+            const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+            if(!phoneRegex.test(phone)) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "VALIDATION ERROR: Please enter a valid phone number (10 digits).";
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(email)) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "VALIDATION ERROR: Please enter a correct email address format.";
+                return;
+            }
+
+            let minors = [];
+            if(isGuardian) {
+                document.querySelectorAll('.minor-row').forEach(row => {
+                    const mName = row.querySelector('.minor-name').value;
+                    const mAge = row.querySelector('.minor-age').value;
+                    if(mName && mAge) minors.push({ name: mName, age: mAge });
+                });
+            }
+
+            const newWaiver = {
+                waiver_hash: generateHash('WV'),
+                name,
+                email,
+                phone,
+                age: Number(age),
+                is_guardian: isGuardian,
+                minors,
+                assigned_event_id: null
+            };
+
+            const { error } = await supabaseClient.from('waivers').insert([newWaiver]);
+
+            if(error) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "SUPABASE ERROR: Could not sync digital signature to cloud. " + error.message;
+                console.error(error);
+                return;
+            }
+
+            document.getElementById('success-overlay').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>

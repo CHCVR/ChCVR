@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Log | Admin | FULL BODY VR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body { background: #05080f; overflow-x: hidden; }
+
+        .admin-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 3rem; background: rgba(10, 14, 23, 0.95);
+            border-bottom: 1px solid var(--clr-primary); position: sticky; top: 0; z-index: 100;
+        }
+
+        .dashboard-container { padding: 3rem 5vw; min-height: 100vh; max-width: 1000px; margin: 0 auto; }
+
+        .control-input {
+            background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border);
+            padding: 0.8rem 1rem; color: white; border-radius: 6px; outline: none;
+            font-family: var(--font-body); width: 100%; transition: 0.3s;
+        }
+        .control-input:focus { border-color: #00ff80; box-shadow: 0 0 10px rgba(0, 255, 128, 0.2); }
+
+        .item-card {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);
+            border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;
+            position: relative; overflow: hidden;
+            border-left: 4px solid var(--clr-primary);
+        }
+
+        .item-card.completed { border-left-color: #00ff80; }
+
+        .item-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;
+        }
+        .item-title { font-family: var(--font-heading); color: white; font-size: 1.2rem; }
+        
+        .file-upload-btn {
+            background: transparent; color: var(--clr-primary);
+            border: 1px dashed var(--clr-primary); padding: 1rem;
+            border-radius: 6px; cursor: pointer; text-align: center;
+            margin-bottom: 1rem; transition: 0.3s; display: block;
+            font-size: 0.9rem; letter-spacing: 1px; width: 100%;
+        }
+        .file-upload-btn:hover { background: rgba(213,0,255,0.1); }
+        .file-upload-btn.uploaded {
+            border: 1px solid #00ff80; color: #00ff80; background: rgba(0,255,128,0.1);
+        }
+
+        input[type="file"] { display: none; }
+
+        /* Security Gate */
+        #security-gate {
+            position:fixed; top:0; left:0; width:100vw; height:100vh;
+            background:#05080f; z-index:9999; display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            .dashboard-container {
+                padding: 1.5rem 5vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="security-gate">
+        <img src="assets/logo.png" style="height:60px; margin-bottom:1rem;" alt="Logo">
+        <h2 style="color:#00ff80; font-family:var(--font-heading);">EQUIPMENT LOG TERMINAL</h2>
+        <input type="password" id="admin-pass" class="control-input" style="margin:1.5rem 0; text-align:center; max-width:300px;" placeholder="Enter Technition Passkey">
+        <button class="cta-nav" style="border-color:#00ff80; color:#00ff80;" onclick="checkAuth()">AUTHENTICATE</button>
+    </div>
+
+    <nav class="admin-nav">
+        <div style="display:flex; align-items:center; gap:20px;">
+            <img src="assets/logo.png" style="height:35px;" alt="Logo">
+            <span style="color:#00ff80; font-family:var(--font-heading); font-size:1.5rem;">HARDWARE LOG</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="variant-btn" onclick="window.location.href='admin.html'" style="padding:8px 15px; font-size:0.8rem; border-color:var(--clr-primary); color:var(--clr-primary);">CENTRAL COMMAND</button>
+            <span style="color:var(--clr-text-muted); margin-right: 1rem;">Technician</span>
+            <button class="variant-btn" onclick="sessionStorage.clear(); window.location.href='index.html'" style="padding: 8px 20px; font-size:0.8rem;">LOGOUT</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div style="background:rgba(255,255,255,0.02); padding: 2rem; border-radius:8px; border:1px solid var(--glass-border); margin-bottom:2rem;">
+            <h2 style="color:white; font-family:var(--font-heading); margin-bottom:1rem;">RETRIEVE DEPLOYMENT</h2>
+            <div style="display:flex; gap:1rem;">
+                <input list="deployment-options" id="search-id" class="control-input" placeholder="Search Hash or Client Name..." autocomplete="off">
+                <datalist id="deployment-options">
+                    <!-- Injected via JS -->
+                </datalist>
+                <button class="cta-nav" onclick="fetchLoadout()" style="white-space:nowrap;">PULL MANIFEST</button>
+            </div>
+        </div>
+
+        <div id="manifest-container" style="display:none;">
+            <div style="margin-bottom: 2rem; border-bottom: 1px dotted rgba(255,255,255,0.2); padding-bottom:1rem;">
+                <h3 style="color:#00ff80; font-family:var(--font-heading);" id="manifest-title">MANIFEST: FBVR-XXXX</h3>
+                <p style="color:var(--clr-text-muted); font-size:0.9rem;" id="manifest-client">-</p>
+            </div>
+
+            <h4 style="color:var(--clr-primary); margin-bottom: 1rem; letter-spacing:1px;">REQUIRED DOCUMENTATION</h4>
+            
+            <div id="equipment-list">
+                <!-- Injected via JS -->
+            </div>
+
+            <button id="btn-submit" class="cta-nav" style="width:100%; padding:1rem; margin-top:1rem; background:rgba(0,255,128,0.1); border-color:#00ff80; color:#00ff80; display:none;" onclick="submitReport()">SUBMIT LOGISTICS REPORT</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Auth Logic
+        const checkAuth = () => {
+            const val = document.getElementById("admin-pass").value;
+            if(val === "admin" || val === "FBVR2026") {
+                document.getElementById("security-gate").style.display = "none";
+                sessionStorage.setItem("admin_auth", "true");
+            } else {
+                alert("ACCESS DENIED: Invalid Passkey");
+            }
+        };
+
+        if(sessionStorage.getItem("admin_auth") === "true") {
+            const gate = document.getElementById("security-gate");
+            if(gate) gate.style.display = 'none';
+        }
+
+        // Shared Mock Data
+        const todayStr = new Date().toISOString().split('T')[0];
+        const mockBookings = [
+            { id: "FBVR-9XA2M", name: "Elias Vance", addons: ["Tactical Haptics", "Attendant Core"], status: "upcoming" },
+            { id: "FBVR-J8K1P", name: "Sarah Connor", addons: ["Weaponry System"], status: "completed" },
+            { id: "FBVR-4L2ZQ", name: "David Bowman", addons: [], status: "upcoming" },
+            { id: "FBVR-11XCV", name: "Ellen Ripley", addons: ["Outdoor Event Matrix", "Tactical Haptics"], status: "canceled" },
+            { id: "FBVR-TR0N8", name: "Kevin Flynn", addons: ["Weaponry System", "Attendant Core"], status: "upcoming" }
+        ];
+
+        let activeRequirements = [];
+        let activeEventId = null;
+
+        const populateDropdown = () => {
+            const list = document.getElementById("deployment-options");
+            mockBookings.filter(b => b.status !== 'canceled').forEach(b => {
+                list.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+            });
+        };
+        populateDropdown();
+
+        const fetchLoadout = () => {
+            const id = document.getElementById("search-id").value;
+            const b = mockBookings.find(x => x.id === id);
+            
+            if(!b) {
+                alert("DATABANK MISS: No deployment found with hash " + id);
+                return;
+            }
+
+            activeEventId = b.id;
+            document.getElementById("manifest-title").innerText = `MANIFEST: ${b.id}`;
+            document.getElementById("manifest-client").innerText = `Client: ${b.name}`;
+
+            // Rule processing
+            activeRequirements = [
+                { key: 'treadmill', name: 'KAT Treadmill System', condition: null, photo: false },
+                { key: 'headset', name: 'Vive Focus VR Headset', condition: null, photo: false },
+                { key: 'compute', name: 'Compute Core (PC)', condition: null, photo: false }
+            ];
+
+            if(b.addons.includes("Tactical Haptics")) {
+                activeRequirements.push({ key: 'bhaptics', name: 'bHaptics Vest', condition: null, photo: false });
+            }
+            if(b.addons.includes("Weaponry System")) {
+                activeRequirements.push({ key: 'striker', name: 'Striker VR Attachment', condition: null, photo: false });
+            }
+
+            renderEquipmentList();
+            document.getElementById("manifest-container").style.display = "block";
+            checkSubmitState();
+        };
+
+        const renderEquipmentList = () => {
+            const container = document.getElementById("equipment-list");
+            container.innerHTML = "";
+
+            activeRequirements.forEach((req, idx) => {
+                const isDone = req.photo === true;
+                container.innerHTML += `
+                    <div class="item-card ${isDone ? 'completed' : ''}" id="card-${idx}">
+                        <div class="item-header">
+                            <span class="item-title">${req.name}</span>
+                            <span style="color:${isDone ? '#00ff80' : 'var(--clr-text-muted)'}; font-size:0.8rem; font-weight:bold;">${isDone ? 'DOCUMENTED' : 'PENDING'}</span>
+                        </div>
+                        
+                        <label class="file-upload-btn ${req.photo ? 'uploaded' : ''}" for="file-${idx}">
+                            ${req.photo ? '✓ PHOTO UPLOADED - CLICK TO REPLACE' : '+ UPLOAD CONDITION PHOTO'}
+                            <input type="file" id="file-${idx}" accept="image/*" onchange="handlePhoto(${idx}, this)">
+                        </label>
+                        
+                        <textarea class="control-input" placeholder="Condition Comments (Optional)..." rows="2" onkeyup="handleComment(${idx}, this)">${req.condition || ''}</textarea>
+                    </div>
+                `;
+            });
+        };
+
+        const handlePhoto = (idx, input) => {
+            if(input.files && input.files[0]) {
+                activeRequirements[idx].photo = true;
+                renderEquipmentList();
+                checkSubmitState();
+            }
+        };
+
+        const handleComment = (idx, input) => {
+            activeRequirements[idx].condition = input.value;
+            // Commment is optional, but we can save it to state
+        };
+
+        const checkSubmitState = () => {
+            // Comments are no longer mandatory
+            const allDone = activeRequirements.every(r => r.photo === true);
+            document.getElementById("btn-submit").style.display = allDone ? "block" : "none";
+        };
+
+        const submitReport = () => {
+            const logs = JSON.parse(localStorage.getItem('equipment_logs') || '{}');
+            logs[activeEventId] = {
+                timestamp: new Date().toISOString(),
+                items: activeRequirements
+            };
+            localStorage.setItem('equipment_logs', JSON.stringify(logs));
+            
+            alert("LOGISTICS REPORT SECURED.");
+            window.location.reload();
+        };
+
+    </script>
+</body>
+</html>

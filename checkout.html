@@ -8,7 +8,21 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- Stripe.js v3 Front-End Logic -->
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- Flatpickr Dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Leaflet Location Matrix -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Supabase Integration Matrix -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
     <style>
+        select option { background-color: #0a0e17; color: white; }
+        .flatpickr-calendar { background: rgba(10,14,23,0.95); border: 1px solid var(--clr-primary); box-shadow: 0 0 20px rgba(213,0,255,0.2) !important; font-family: var(--font-body); }
+        .flatpickr-day.selected { background: var(--clr-primary) !important; border-color: var(--clr-primary) !important; text-shadow: 0 0 10px white; }
+        .flatpickr-inline { width: 100%; max-width: 400px; margin: 0 auto; display: block !important; border-radius: 8px; overflow: hidden; }
         .checkout-wrapper {
             max-width: 800px;
             margin: 0 auto;
@@ -93,6 +107,29 @@
         }
         .cyber-spinner { width: 50px; height: 50px; border: 3px solid transparent; border-top-color: var(--clr-primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .step-dot {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            .summary-block {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            #step-nav {
+                margin-bottom: 2rem;
+            }
+            .checkout-wrapper {
+                padding: 0 5vw;
+            }
+        }
     </style>
 </head>
 <body data-theme="sci-fi">
@@ -121,6 +158,7 @@
                 <div class="step-dot" id="dot-2">2</div>
                 <div class="step-dot" id="dot-3">3</div>
                 <div class="step-dot" id="dot-4">4</div>
+                <div class="step-dot" id="dot-5">5</div>
             </div>
 
             <!-- STEP 1: LOADOUT CART SUMMARY -->
@@ -139,8 +177,8 @@
                     <div class="summary-total" id="step1-total">$0.00</div>
                 </div>
                 <div style="padding: 0 1.5rem 1.5rem;">
-                    <p style="color:rgb(255, 100, 100); font-weight:600; font-size:0.9rem; margin-bottom:4px;">+ A temporary security hold of $1,000.00 will be placed on your card.</p>
-                    <p style="color:var(--clr-text-muted); font-size:0.8rem; line-height:1.4;">This is a pre-authorization hold, not a direct charge. It will automatically be released after your designated session concludes, subject to hardware inspection mapping.</p>
+                    <p style="color:rgb(255, 100, 100); font-weight:600; font-size:0.9rem; margin-bottom:4px;">+ A temporary security hold of $1,000.00 will be authorized on the day of your deployment.</p>
+                    <p style="color:var(--clr-text-muted); font-size:0.8rem; line-height:1.4;">By completing this checkout, we securely vault your payment method. You will not be charged the $1,000 hold today. The pre-authorization hold only triggers automatically on the morning of your scheduled rental.</p>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; margin-top: 2rem;">
@@ -148,11 +186,54 @@
                 </div>
             </div>
 
-            <!-- STEP 2: CLIENT DOSSIER & FORMS -->
+            <!-- STEP 2: DEPLOYMENT SCHEDULING -->
             <div class="step-panel glass-panel" id="step-2">
-                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">2 // CLIENT DOSSIER</h2>
+                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">2 // DEPLOYMENT SCHEDULING</h2>
                 
-                <form id="form-details" onsubmit="event.preventDefault(); goToStep(3);">
+                <form id="form-schedule" onsubmit="event.preventDefault(); goToStep(3);">
+                    <div class="glass-panel" style="padding:1.5rem; margin-bottom:1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--clr-primary); display: flex; flex-direction: row; flex-wrap: wrap; gap: 2rem;">
+                        
+                        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <label class="form-label" style="text-align:center; width:100%; margin-bottom: 1rem;">1. SELECT DATE *</label>
+                            <input type="text" id="sched-date" class="form-control" required style="display: none;">
+                        </div>
+
+                        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+                            <div class="form-group">
+                                <label class="form-label">2. START TIME *</label>
+                                <select id="sched-time" class="form-control" required disabled>
+                                    <option value="">Select a Date First</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label class="form-label">3. DURATION (RECALCULATES LOGISTICS) *</label>
+                                <select id="sched-duration" class="form-control" required disabled>
+                                    <option value="">Select a Time First</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <div id="sched-feedback" style="padding: 1rem; background: rgba(10,14,23,0.8); border: 1px dashed var(--glass-border); border-radius: 6px; color: var(--clr-text-muted); font-size: 0.9rem; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 52px; transition: all 0.3s ease;">
+                                    Awaiting Time Coordinates
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-top: 2rem;">
+                        <button type="button" class="variant-btn" onclick="goToStep(1)">REVERT</button>
+                        <button type="submit" class="cta-primary">PROCEED TO DOSSIER</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- STEP 3: CLIENT DOSSIER & FORMS -->
+            <div class="step-panel glass-panel" id="step-3">
+                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">3 // CLIENT DOSSIER</h2>
+                
+                <form id="form-details" onsubmit="event.preventDefault(); submitDossier();">
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">FULL NAME *</label>
@@ -166,7 +247,7 @@
                     
                     <div class="form-row">
                         <div style="flex:1;">
-                            <label class="form-label">PHONE NUMBER</label>
+                            <label class="form-label">ON-SITE CONTACT PHONE</label>
                             <input type="tel" id="guest-phone" class="form-control" required placeholder="(555) 012-3456">
                         </div>
                         <div style="flex:1;">
@@ -182,8 +263,16 @@
 
                     <div class="form-row">
                         <div style="flex:1;">
-                            <label class="form-label">FULL LOGISTICS DELIVERY ADDRESS</label>
-                            <input type="text" id="guest-address" class="form-control" required placeholder="123 Simulation Blvd, City, Postal Code">
+                            <label class="form-label">FULL LOGISTICS DELIVERY ADDRESS *</label>
+                            <div style="position: relative;">
+                                <div style="display:flex; gap: 10px; align-items: stretch;">
+                                    <input type="text" id="guest-address" class="form-control" required placeholder="123 Simulation Blvd, City, Postal Code" style="flex: 1 1 auto; width: 100%;" autocomplete="off">
+                                    <button type="button" class="cta-primary" id="btn-verify-location" style="flex: 0 0 auto; width: max-content; padding: 0 2rem; white-space: nowrap;" onclick="verifyLocation()">VERIFY</button>
+                                </div>
+                                <ul id="address-suggestions" style="position:absolute; top:calc(100% + 5px); left:0; width:100%; max-width: calc(100% - 150px); background:#05080f; border:1px solid var(--clr-primary); border-radius:6px; list-style:none; margin:0; padding:0; z-index:1000; max-height:250px; overflow-y:auto; display:none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></ul>
+                            </div>
+                            <div id="location-feedback" style="display:none; padding:10px; margin-top:10px; border-radius:4px; font-weight:bold; font-size:0.9rem;"></div>
+                            <div id="map-container" style="width: 100%; height: 250px; border-radius: 6px; border: 1px solid var(--glass-border); margin-top: 1rem; display: block; z-index: 1;"></div>
                         </div>
                     </div>
                     
@@ -198,52 +287,21 @@
                         </div>
                     </div>
                     
-                    <div class="glass-panel" style="padding:1.5rem; margin-bottom:1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--clr-primary);">
-                        <h3 style="color:var(--clr-primary); margin-bottom: 1rem; font-family:var(--font-heading); font-size: 1.2rem; letter-spacing: 2px;">DEPLOYMENT SCHEDULING</h3>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">1. SELECT DATE *</label>
-                                <input type="date" id="sched-date" class="form-control" required min="">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">2. START TIME *</label>
-                                <select id="sched-time" class="form-control" required disabled>
-                                    <option value="">Select a Date First</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row" id="duration-container">
-                            <div class="form-group" style="flex:1;">
-                                <label class="form-label">3. DURATION (RECALCULATES LOGISTICS) *</label>
-                                <select id="sched-duration" class="form-control" required disabled>
-                                    <option value="">Select a Time First</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="flex:1.5; display:flex; flex-direction:column; justify-content:flex-end;">
-                                <div id="sched-feedback" style="padding: 1rem; background: rgba(10,14,23,0.8); border: 1px dashed var(--glass-border); border-radius: 6px; color: var(--clr-text-muted); font-size: 0.9rem; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 52px; transition: all 0.3s ease;">
-                                    Awaiting Time Coordinates
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label class="form-label">SPECIAL REQUESTS / EVENT NOTES</label>
                         <textarea id="cus-notes" class="form-control" rows="3" placeholder="Access codes, specific game requests, structural notes, etc."></textarea>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; margin-top: 2rem;">
-                        <button type="button" class="variant-btn" onclick="goToStep(1)">REVERT</button>
+                        <button type="button" class="variant-btn" onclick="goToStep(2)">REVERT</button>
                         <button type="submit" class="cta-primary">PROCEED TO CLEARANCE</button>
                     </div>
                 </form>
             </div>
 
-            <!-- STEP 3: CONTRACT & WAIVER PIPELINE -->
-            <div class="step-panel glass-panel" id="step-3">
-                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">3 // MASTER WAIVER & RENTAL AGREEMENT</h2>
+            <!-- STEP 4: CONTRACT & WAIVER PIPELINE -->
+            <div class="step-panel glass-panel" id="step-4">
+                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">4 // MASTER WAIVER & RENTAL AGREEMENT</h2>
                 
                 <div class="legal-scroll-box" style="height: 250px; overflow-y: scroll; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; font-size: 0.8rem; color: var(--clr-text-muted); line-height: 1.6;">
                     <h4 style="color:white; text-align:center; margin-bottom: 1rem;">MASTER WAIVER, RENTAL AGREEMENT & PAYMENT AUTHORIZATION</h4>
@@ -317,7 +375,7 @@
                     <p>The Participant confirms They have read and understood this agreement, They accept all risks, They agree voluntarily.</p>
                 </div>
 
-                <form id="form-legal" onsubmit="event.preventDefault(); goToStep(4);">
+                <form id="form-legal" onsubmit="event.preventDefault(); goToStep(5);">
                     
                     <h3 style="color:var(--clr-primary); margin-bottom: 1rem; font-family:var(--font-heading); font-size: 1.1rem;">REQUIRED INITIALS</h3>
                     
@@ -399,14 +457,14 @@
                 </form>
             </div>
 
-            <!-- STEP 4: STRIPE DATA INTERFACE -->
-            <div class="step-panel glass-panel" id="step-4">
-                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">4 // SECURE PAYMENT</h2>
+            <!-- STEP 5: STRIPE DATA INTERFACE -->
+            <div class="step-panel glass-panel" id="step-5">
+                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">5 // SECURE PAYMENT</h2>
                 
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 2rem;">
                     <div>
                         <p style="color:white; font-size:0.9rem; font-weight:bold; letter-spacing:1px;">ENCRYPTED STRIPE TERMINAL</p>
-                        <p style="color:rgb(255,100,100); font-size:0.8rem; font-weight:bold; margin-top:6px;">+ $1,000.00 Security Base Hold</p>
+                        <p style="color:rgb(255,100,100); font-size:0.8rem; font-weight:bold; margin-top:6px;">+ $1,000.00 Vaulted Hold (Processed on Date of Rental)</p>
                     </div>
                     <div style="text-align:right;">
                         <p style="color:var(--clr-text-muted); font-size:0.8rem; margin-bottom:4px; text-transform:uppercase;">Logistics Charge Total</p>
@@ -425,14 +483,14 @@
                     <div id="payment-message"></div>
                     
                     <div style="display:flex; justify-content:space-between; margin-top: 2rem;">
-                        <button type="button" class="variant-btn" onclick="goToStep(3)">REVERT</button>
+                        <button type="button" class="variant-btn" onclick="goToStep(4)">REVERT</button>
                         <button type="submit" class="cta-primary" id="submit-pay">AUTHORIZE FUNDS</button>
                     </div>
                 </form>
             </div>
 
-            <!-- STEP 5: SUCCESS / CONFIRMATION -->
-            <div class="step-panel glass-panel" id="step-5" style="text-align:center; padding: 4rem 2rem;">
+            <!-- STEP 6: SUCCESS / CONFIRMATION -->
+            <div class="step-panel glass-panel" id="step-6" style="text-align:center; padding: 4rem 2rem;">
                 <div style="width:80px; height:80px; border-radius:50%; background:rgba(213,0,255,0.2); border:2px solid var(--clr-primary); margin: 0 auto 2rem; display:flex; justify-content:center; align-items:center;">
                     <span style="font-size:2rem; color:var(--clr-primary);">✓</span>
                 </div>
@@ -549,10 +607,19 @@
             const durationSelect = document.getElementById("sched-duration");
             const schedFeedback = document.getElementById("sched-feedback");
 
-            // Minimum Date limit
-            dateInput.min = todayStr;
-
             const minRequiredDuration = payload.mode === 'event' ? 4 : 2;
+
+            // Initialize Flatpickr Inline Calendar
+            flatpickr(dateInput, {
+                inline: true,
+                minDate: "today",
+                theme: "dark",
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Manually trigger the existing native change event so legacy logic runs
+                    const event = new Event('change');
+                    dateInput.dispatchEvent(event);
+                }
+            });
 
             dateInput.addEventListener("change", (e) => {
                 const selectedDate = e.target.value;
@@ -561,8 +628,16 @@
                 durationSelect.disabled = true;
 
                 let optionsAdded = false;
+                let currentHour = 0;
+                if (selectedDate === todayStr) {
+                    currentHour = new Date().getHours();
+                }
 
                 for(let h=8; h<22; h++) {
+                    if (selectedDate === todayStr && h <= currentHour + 3) {
+                       continue; // Enforce 3-hour logistics preparation pad
+                    }
+                    
                     const maxFitting = getAvailableDuration(selectedDate, h, minRequiredDuration);
                     if(maxFitting > 0) {
                         const ampm = h >= 12 ? 'PM' : 'AM';
@@ -620,7 +695,7 @@
                 }
             });
 
-            schedDuration.addEventListener("change", () => {
+            durationSelect.addEventListener("change", () => {
                 if(!durationSelect.value || !timeSelect.value) return;
                 const startHour = parseInt(timeSelect.value);
                 const duration = parseInt(durationSelect.value);
@@ -664,7 +739,7 @@
                             <div><span style="color:var(--clr-text-muted); font-size:0.85rem;">EXPERIENCE CLASS</span><br><strong style="color:var(--clr-primary); font-size:1.2rem;">HOME DEPLOYMENT</strong></div>
                          </div>`;
                 html += `<div class="summary-block">
-                            <div><span style="color:var(--clr-text-muted); font-size:0.85rem;">TIME DILATION</span><br><strong style="color:white;">${data.hours} Hours Minimum</strong></div>
+                            <div><span style="color:var(--clr-text-muted); font-size:0.85rem;">SCALE MATRIX</span><br><strong style="color:white;">${data.units || 1} Station(s) | ${data.hours} Hours Minimum</strong></div>
                          </div>`;
                 if(data.haptics) html += `<div class="summary-row" style="padding:1rem 1.5rem;"><span>Tactical Haptics (bHaptics X40)</span><span style="color:var(--clr-primary);">INCLUDED</span></div>`;
                 if(data.weapon) html += `<div class="summary-row" style="padding:1rem 1.5rem;"><span>Weaponry System (StrikerVR Mavrik)</span><span style="color:var(--clr-primary);">INCLUDED</span></div>`;
@@ -687,7 +762,11 @@
             document.getElementById("step-"+step).classList.add('active');
             window.scrollTo({ top: 100, behavior: 'smooth' });
 
-            if(step === 4) {
+            if (step === 3 && leafletMap) {
+                setTimeout(() => leafletMap.invalidateSize(), 50);
+            }
+
+            if(step === 5) {
                 initializeStripe();
             }
         }
@@ -720,8 +799,12 @@
                 
                 window.activeBookingId = customerData.bookingId;
 
-                // Request Intent Secret from active Localhost Engine 
-                const response = await fetch("http://localhost:4242/create-payment-intent", {
+                // Request Intent Secret from active Localhost Engine or Serverless function
+                const endpointUrl = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:") 
+                    ? "http://localhost:4242/create-payment-intent" 
+                    : "/api/create-payment-intent";
+
+                const response = await fetch(endpointUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -759,6 +842,160 @@
             }
         }
 
+        let isLocationVerified = false;
+        let leafletMap = null;
+        let geofenceCircle = null;
+        let marker = null;
+        const BRAMPTON_COORDS = [43.7315, -79.7624];
+        
+        function getHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = (lat2 - lat1) * (Math.PI/180);
+            const dLon = (lon2 - lon1) * (Math.PI/180);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2); 
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            return R * c; // Distance in km
+        }
+
+        // Initialize Map Base Canvas early so users see the geofence perimeter immediately
+        document.addEventListener("DOMContentLoaded", () => {
+            leafletMap = L.map('map-container').setView(BRAMPTON_COORDS, 9);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(leafletMap);
+
+            geofenceCircle = L.circle(BRAMPTON_COORDS, {
+                color: '#d500ff',
+                fillColor: '#d500ff',
+                fillOpacity: 0.1,
+                radius: 70000 // 70km inside meters
+            }).addTo(leafletMap);
+        });
+
+        async function verifyLocation() {
+            const addressInput = document.getElementById("guest-address").value;
+            const feedback = document.getElementById("location-feedback");
+
+            if(addressInput.trim().length < 5) {
+                feedback.style.display = "block";
+                feedback.style.color = "rgb(255,100,100)";
+                feedback.style.border = "1px solid rgb(255,100,100)";
+                feedback.innerText = "Please provide an accurate delivery address before scanning.";
+                return false;
+            }
+
+            feedback.style.display = "block";
+            feedback.style.color = "white";
+            feedback.style.border = "1px solid var(--clr-primary)";
+            feedback.innerHTML = "ENGAGING SATELLITE... <div class='cyber-spinner' style='width:15px;height:15px;display:inline-block;border-width:2px;vertical-align:middle;margin-left:5px;'></div>";
+
+            try {
+                // Nominatim REST fetch
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressInput)}&format=json&limit=1`);
+                const data = await res.json();
+                
+                if(!data || data.length === 0) {
+                    feedback.style.color = "rgb(255,100,100)";
+                    feedback.style.border = "1px solid rgb(255,100,100)";
+                    feedback.innerText = "COORDINATE ERROR: Address not found in global matrix. Try adding City and Postal Code.";
+                    isLocationVerified = false;
+                    return false;
+                }
+
+                const targetLat = parseFloat(data[0].lat);
+                const targetLon = parseFloat(data[0].lon);
+                const calcDistance = getHaversineDistance(BRAMPTON_COORDS[0], BRAMPTON_COORDS[1], targetLat, targetLon);
+
+                if(marker) leafletMap.removeLayer(marker);
+                marker = L.marker([targetLat, targetLon]).addTo(leafletMap);
+
+                leafletMap.fitBounds(L.featureGroup([marker, geofenceCircle]).getBounds(), { padding: [20, 20] });
+                setTimeout(() => leafletMap.invalidateSize(), 150);
+
+                if(calcDistance > 70) {
+                    feedback.style.color = "rgb(255,100,100)";
+                    feedback.style.border = "1px solid rgb(255,100,100)";
+                    feedback.innerText = `LOGISTICS ERROR: Location is outside our 70km delivery radius. Please contact us.`;
+                    isLocationVerified = false;
+                    return false;
+                } else {
+                    feedback.style.color = "var(--clr-primary)";
+                    feedback.style.border = "1px solid var(--clr-primary)";
+                    feedback.innerText = `GEOLOCATION LOCK: Location is within active delivery zone. Good for deployment.`;
+                    isLocationVerified = true;
+                    return true;
+                }
+            } catch(e) {
+                feedback.style.color = "rgb(255,100,100)";
+                feedback.style.border = "1px solid rgb(255,100,100)";
+                feedback.innerText = "NETWORK ERROR: Could not ping satellites. Try again.";
+                isLocationVerified = false;
+                return false;
+            }
+        }
+
+        async function submitDossier() {
+            if(!isLocationVerified) {
+                const verified = await verifyLocation();
+                if(!verified) return; // Halt progression natively 
+            }
+            goToStep(4);
+        }
+
+        // Photon Autocomplete Logic
+        const addressInputDOM = document.getElementById("guest-address");
+        const suggestionBox = document.getElementById("address-suggestions");
+        let suggestionTimeout;
+
+        addressInputDOM.addEventListener("input", (e) => {
+            clearTimeout(suggestionTimeout);
+            const query = e.target.value.trim();
+            if(query.length < 4) {
+                suggestionBox.style.display = "none";
+                return;
+            }
+            suggestionTimeout = setTimeout(async () => {
+                try {
+                    // Biasing results to North America coordinates (Brampton approximate center)
+                    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lat=43.7315&lon=-79.7624`);
+                    const data = await res.json();
+                    suggestionBox.innerHTML = "";
+                    if(data.features && data.features.length > 0) {
+                        data.features.forEach(f => {
+                            const props = f.properties;
+                            const displayName = [props.housenumber, props.street, props.city, props.state, props.postcode].filter(Boolean).join(", ");
+                            if(!displayName || displayName.length < 5) return;
+                            const li = document.createElement("li");
+                            li.style.padding = "10px 15px";
+                            li.style.cursor = "pointer";
+                            li.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                            li.style.color = "var(--clr-text-muted)";
+                            li.style.fontSize = "0.85rem";
+                            li.style.transition = "all 0.2s ease";
+                            li.onmouseover = () => { li.style.background = "rgba(213,0,255,0.2)"; li.style.color = "white"; };
+                            li.onmouseout = () => { li.style.background = "transparent"; li.style.color = "var(--clr-text-muted)"; };
+                            li.innerText = displayName;
+                            li.onclick = () => {
+                                addressInputDOM.value = displayName;
+                                suggestionBox.style.display = "none";
+                                verifyLocation(); // Instantly trigger Leaflet mapping
+                            };
+                            suggestionBox.appendChild(li);
+                        });
+                        if(suggestionBox.innerHTML !== "") {
+                            suggestionBox.style.display = "block";
+                        }
+                    }
+                } catch(err) { console.error("Photon Map Engine Offline", err); }
+            }, 400); // 400ms typing debounce
+        });
+
+        document.addEventListener("click", (e) => {
+            if(e.target !== addressInputDOM) suggestionBox.style.display = "none";
+        });
+
         // Final Intercept Pipeline
         document.getElementById("payment-form").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -777,7 +1014,33 @@
                 const messageContainer = document.querySelector("#payment-message");
                 messageContainer.innerText = error.message;
             } else {
-                // PAYMENT SUCCESS
+                // STRIPE PAYMENT SUCCESS -> PUSH TO SUPABASE
+                try {
+                    const payload = JSON.parse(localStorage.getItem("vr_checkout_payload"));
+                    const startH = payload.mode === 'event' ? payload.startHour : parseInt(document.getElementById("sched-time").value);
+                    const durH = payload.mode === 'event' ? (payload.eventBlock === 'half' ? 4 : 8) : parseInt(document.getElementById("sched-duration").value);
+
+                    const dbPayload = {
+                        booking_hash: window.activeBookingId || generateHash("FBVR"),
+                        name: document.getElementById("guest-name").value,
+                        email: document.getElementById("guest-email").value,
+                        phone: document.getElementById("guest-phone").value,
+                        address: document.getElementById("guest-address").value,
+                        date: document.getElementById("sched-date").value,
+                        start_hour: startH,
+                        duration: durH,
+                        guests: 1, // defaulted
+                        charge: payload.finalTotal,
+                        status: "upcoming",
+                        addons: [], // simplified map
+                        comments: document.getElementById("guest-comments").value || ""
+                    };
+
+                    await supabaseClient.from("bookings").insert([dbPayload]);
+                } catch(e) {
+                    console.error("Supabase Bookings Push Failed", e);
+                }
+
                 document.getElementById("success-ref").innerText = window.activeBookingId;
                 goToStep(5);
                 localStorage.removeItem("vr_checkout_payload"); // wipe active cart state

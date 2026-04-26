@@ -75,9 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- HOME VARIABLES ---
         let hours = 2;
+        let homeUnits = 1;
         const hoursDisplay = document.getElementById("hours-display");
         const btnMinus = document.getElementById("btn-minus");
         const btnPlus = document.getElementById("btn-plus");
+        const btnHomeUnit1 = document.getElementById("btn-home-unit-1");
+        const btnHomeUnit2 = document.getElementById("btn-home-unit-2");
         const durationError = document.getElementById("duration-error");
         let addOns = { haptics: false, weapon: false };
         const HOME_BASE = 300, HOME_HOURLY = 125, HOME_LOGISTICS = 95;
@@ -93,9 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnHalfDay = document.getElementById("btn-half-day");
         const btnFullDay = document.getElementById("btn-full-day");
         
-        const btnUnitMinus = document.getElementById("btn-unit-minus");
-        const btnUnitPlus = document.getElementById("btn-unit-plus");
-        const unitsDisplay = document.getElementById("units-display");
+        const btnEventUnit1 = document.getElementById("btn-event-unit-1");
+        const btnEventUnit2 = document.getElementById("btn-event-unit-2");
         
         const btnDayMinus = document.getElementById("btn-day-minus");
         const btnDayPlus = document.getElementById("btn-day-plus");
@@ -171,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 payload.eventBlock = eventBlock; 
             } else {
                 payload.hours = hours;
+                payload.units = homeUnits;
                 payload.haptics = addOns.haptics;
                 payload.weapon = addOns.weapon;
                 payload.deposit = (payload.finalTotal * 0.20).toFixed(2);
@@ -181,26 +184,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const checkEnterpriseTrigger = () => {
-            if (isEventMode && (eventDays >= 3 || eventUnits >= 4)) {
-                modalOverlay.style.display = "block";
-                enterpriseModal.style.display = "block";
-                btnReserve.style.display = "none";
-                liveTotal.innerText = "CUSTOM QUOTE";
-                breakdownMenu.style.display = "none";
-                return true; // Triggered
-            }
             btnReserve.style.display = "block";
-            return false; // Not triggered
+            return false; // Enterprise triggers disabled as options enforce 2 max limit
         };
 
         btnCloseModal.addEventListener("click", () => {
             modalOverlay.style.display = "none";
             enterpriseModal.style.display = "none";
             // Auto revert logic to bypass trigger limits when closed
-            if (eventDays >= 3) eventDays = 2;
-            if (eventUnits >= 4) eventUnits = 3;
             daysDisplay.innerText = eventDays;
-            unitsDisplay.innerText = eventUnits;
+            if(btnEventUnit1 && btnEventUnit2) {
+                [btnEventUnit1, btnEventUnit2].forEach(b => b.classList.remove("active"));
+                if(eventUnits === 1) btnEventUnit1.classList.add("active");
+                if(eventUnits === 2) btnEventUnit2.classList.add("active");
+            }
             updateTally();
         });
 
@@ -209,21 +206,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!isEventMode) {
                 // Home Logic
-                let hardwareCost = HOME_BASE;
-                if (hours > 2) hardwareCost += (hours - 2) * HOME_HOURLY;
+                let hardwareCost = HOME_BASE * homeUnits;
+                if (hours > 2) hardwareCost += (hours - 2) * (HOME_HOURLY * homeUnits);
                 
-                let hapticsCost = addOns.haptics ? 60 : 0;
-                let weaponCost = addOns.weapon ? 40 : 0;
-                let subtotal = hardwareCost + hapticsCost + weaponCost + HOME_LOGISTICS;
+                let hapticsCost = addOns.haptics ? (60 * homeUnits) : 0;
+                let weaponCost = addOns.weapon ? (40 * homeUnits) : 0;
+                let subtotal = hardwareCost + hapticsCost + weaponCost + (HOME_LOGISTICS * homeUnits);
                 let finalTotal = subtotal;
                 
                 liveTotal.innerText = finalTotal.toFixed(2);
                 
                 breakdownMenu.innerHTML = `
-                    <div class="bd-row"><span class="bd-tooltip-wrapper" data-tooltip="Complete VR locomotion hardware stack.">Base System (${hours} hrs)</span><span>$${hardwareCost.toFixed(2)}</span></div>
-                    ${addOns.haptics ? '<div class="bd-row"><span>Tactical Haptics</span><span>$60.00</span></div>' : ''}
-                    ${addOns.weapon ? '<div class="bd-row"><span>Weaponry System</span><span>$40.00</span></div>' : ''}
-                    <div class="bd-row"><span class="bd-tooltip-wrapper" data-tooltip="Delivery, exact calibration, and teardown.">White-Glove Logistics (Required)</span><span>$95.00</span></div>
+                    <div class="bd-row"><span class="bd-tooltip-wrapper" data-tooltip="Complete VR locomotion hardware stack.">Base System x${homeUnits} (${hours} hrs)</span><span>$${hardwareCost.toFixed(2)}</span></div>
+                    ${addOns.haptics ? '<div class="bd-row"><span>Tactical Haptics x' + homeUnits + '</span><span>$' + (60 * homeUnits).toFixed(2) + '</span></div>' : ''}
+                    ${addOns.weapon ? '<div class="bd-row"><span>Weaponry System x' + homeUnits + '</span><span>$' + (40 * homeUnits).toFixed(2) + '</span></div>' : ''}
+                    <div class="bd-row"><span class="bd-tooltip-wrapper" data-tooltip="Delivery, exact calibration, and teardown.">White-Glove Logistics (Required)</span><span>$${(HOME_LOGISTICS * homeUnits).toFixed(2)}</span></div>
                 `;
                 
                 if (hours < 2) {
@@ -270,11 +267,18 @@ document.addEventListener("DOMContentLoaded", () => {
         btnMinus.addEventListener("click", () => { hours = Math.max(1, hours - 1); hoursDisplay.innerText = hours; updateTally(); });
         btnPlus.addEventListener("click", () => { hours++; hoursDisplay.innerText = hours; updateTally(); });
         
+        if(btnHomeUnit1 && btnHomeUnit2) {
+            btnHomeUnit1.addEventListener("click", () => { homeUnits = 1; btnHomeUnit1.classList.add("active"); btnHomeUnit2.classList.remove("active"); updateTally(); });
+            btnHomeUnit2.addEventListener("click", () => { homeUnits = 2; btnHomeUnit2.classList.add("active"); btnHomeUnit1.classList.remove("active"); updateTally(); });
+        }
+        
         // Event Counters & Buttons
         btnHalfDay.addEventListener("click", () => { eventBlock = "half"; btnHalfDay.classList.add("active"); btnFullDay.classList.remove("active"); updateTally(); });
         btnFullDay.addEventListener("click", () => { eventBlock = "full"; btnFullDay.classList.add("active"); btnHalfDay.classList.remove("active"); updateTally(); });
-        btnUnitMinus.addEventListener("click", () => { eventUnits = Math.max(1, eventUnits - 1); unitsDisplay.innerText = eventUnits; updateTally(); });
-        btnUnitPlus.addEventListener("click", () => { eventUnits++; unitsDisplay.innerText = eventUnits; updateTally(); });
+        if(btnEventUnit1 && btnEventUnit2) {
+            btnEventUnit1.addEventListener("click", () => { eventUnits = 1; btnEventUnit1.classList.add("active"); btnEventUnit2.classList.remove("active"); updateTally(); });
+            btnEventUnit2.addEventListener("click", () => { eventUnits = 2; btnEventUnit2.classList.add("active"); btnEventUnit1.classList.remove("active"); updateTally(); });
+        }
         btnDayMinus.addEventListener("click", () => { eventDays = Math.max(1, eventDays - 1); daysDisplay.innerText = eventDays; updateTally(); });
         btnDayPlus.addEventListener("click", () => { eventDays++; daysDisplay.innerText = eventDays; updateTally(); });
         
