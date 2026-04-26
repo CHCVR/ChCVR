@@ -2,11 +2,6 @@
   "name": "vr-rental-checkout",
   "version": "1.0.0",
   "description": "Secure Stripe backend for VR Rental Webapp",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
