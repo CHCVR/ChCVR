@@ -124,6 +124,10 @@
 
     </div>
 
+    <!-- Supabase Integration Matrix -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
     <script>
         // Auth Logic
         const checkAuth = () => {
@@ -141,52 +145,51 @@
             if(gate) gate.style.display = 'none';
         }
 
-        // Shared Mock Data
+        // Shared Cloud Data
         const todayStr = new Date().toISOString().split('T')[0];
-        const mockBookings = [
-            { id: "FBVR-9XA2M", name: "Elias Vance", addons: ["Tactical Haptics", "Attendant Core"], status: "upcoming" },
-            { id: "FBVR-J8K1P", name: "Sarah Connor", addons: ["Weaponry System"], status: "completed" },
-            { id: "FBVR-4L2ZQ", name: "David Bowman", addons: [], status: "upcoming" },
-            { id: "FBVR-11XCV", name: "Ellen Ripley", addons: ["Outdoor Event Matrix", "Tactical Haptics"], status: "canceled" },
-            { id: "FBVR-TR0N8", name: "Kevin Flynn", addons: ["Weaponry System", "Attendant Core"], status: "upcoming" }
-        ];
-
+        let cloudBookings = [];
         let activeRequirements = [];
         let activeEventId = null;
 
-        const populateDropdown = () => {
+        const populateDropdown = async () => {
+            const { data, error } = await supabaseClient.from('bookings').select('*');
+            if(error) { console.error(error); return; }
+            cloudBookings = data || [];
+
             const list = document.getElementById("deployment-options");
-            mockBookings.filter(b => b.status !== 'canceled').forEach(b => {
-                list.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+            list.innerHTML = "";
+            cloudBookings.filter(b => b.status !== 'canceled').forEach(b => {
+                list.innerHTML += `<option value="${b.booking_hash}">${b.name} (${b.date})</option>`;
             });
         };
         populateDropdown();
 
         const fetchLoadout = () => {
             const id = document.getElementById("search-id").value;
-            const b = mockBookings.find(x => x.id === id);
+            const b = cloudBookings.find(x => x.booking_hash === id);
             
             if(!b) {
                 alert("DATABANK MISS: No deployment found with hash " + id);
                 return;
             }
 
-            activeEventId = b.id;
-            document.getElementById("manifest-title").innerText = `MANIFEST: ${b.id}`;
+            activeEventId = b.booking_hash;
+            document.getElementById("manifest-title").innerText = `MANIFEST: ${b.booking_hash}`;
             document.getElementById("manifest-client").innerText = `Client: ${b.name}`;
 
             // Rule processing
             activeRequirements = [
-                { key: 'treadmill', name: 'KAT Treadmill System', condition: null, photo: false },
-                { key: 'headset', name: 'Vive Focus VR Headset', condition: null, photo: false },
-                { key: 'compute', name: 'Compute Core (PC)', condition: null, photo: false }
+                { key: 'treadmill', name: 'KAT Treadmill System', condition: null, photo: false, photo_data: null },
+                { key: 'headset', name: 'Vive Focus VR Headset', condition: null, photo: false, photo_data: null },
+                { key: 'compute', name: 'Compute Core (PC)', condition: null, photo: false, photo_data: null }
             ];
 
-            if(b.addons.includes("Tactical Haptics")) {
-                activeRequirements.push({ key: 'bhaptics', name: 'bHaptics Vest', condition: null, photo: false });
+            const activeAddons = b.addons || [];
+            if(activeAddons.includes("Tactical Haptics")) {
+                activeRequirements.push({ key: 'bhaptics', name: 'bHaptics Vest', condition: null, photo: false, photo_data: null });
             }
-            if(b.addons.includes("Weaponry System")) {
-                activeRequirements.push({ key: 'striker', name: 'Striker VR Attachment', condition: null, photo: false });
+            if(activeAddons.includes("Weaponry System")) {
+                activeRequirements.push({ key: 'striker', name: 'Striker VR Attachment', condition: null, photo: false, photo_data: null });
             }
 
             renderEquipmentList();
@@ -218,34 +221,72 @@
             });
         };
 
+        const compressImage = (file, callback) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); // 60% quality jpeg
+                    callback(compressedBase64);
+                };
+            };
+        };
+
         const handlePhoto = (idx, input) => {
             if(input.files && input.files[0]) {
-                activeRequirements[idx].photo = true;
-                renderEquipmentList();
-                checkSubmitState();
+                const file = input.files[0];
+                const lbl = document.querySelector('label[for="file-'+idx+'"]');
+                if(lbl) {
+                    lbl.innerHTML = "COMPRESSING IMAGE...";
+                }
+                
+                compressImage(file, (base64) => {
+                    activeRequirements[idx].photo = true;
+                    activeRequirements[idx].photo_data = base64;
+                    renderEquipmentList();
+                    checkSubmitState();
+                });
             }
         };
 
         const handleComment = (idx, input) => {
             activeRequirements[idx].condition = input.value;
-            // Commment is optional, but we can save it to state
         };
 
         const checkSubmitState = () => {
-            // Comments are no longer mandatory
             const allDone = activeRequirements.every(r => r.photo === true);
             document.getElementById("btn-submit").style.display = allDone ? "block" : "none";
         };
 
-        const submitReport = () => {
-            const logs = JSON.parse(localStorage.getItem('equipment_logs') || '{}');
-            logs[activeEventId] = {
-                timestamp: new Date().toISOString(),
+        const submitReport = async () => {
+            document.getElementById("btn-submit").innerText = "UPLOADING TO CLOUD DB...";
+            
+            const payload = {
+                booking_hash: activeEventId,
                 items: activeRequirements
             };
-            localStorage.setItem('equipment_logs', JSON.stringify(logs));
+
+            const { error } = await supabaseClient.from('equipment_logs').insert([payload]);
             
-            alert("LOGISTICS REPORT SECURED.");
+            if(error) {
+                alert("SUPABASE ERROR: " + error.message);
+                document.getElementById("btn-submit").innerText = "SUBMIT LOGISTICS REPORT";
+                console.error(error);
+                return;
+            }
+
+            alert("LOGISTICS REPORT SECURED. DATA SYNCED TO ADMIN.");
             window.location.reload();
         };
 
