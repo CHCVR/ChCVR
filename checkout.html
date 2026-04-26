@@ -133,6 +133,32 @@
     </style>
 </head>
 <body data-theme="sci-fi">
+    <!-- Security Overlay -->
+    <div id="security-gate" style="position: fixed; top:0; left:0; width:100%; height:100%; background: #05080f; z-index: 9999; display: flex; align-items:center; justify-content:center;">
+        <div style="background: rgba(255,255,255,0.05); padding: 3rem; border-radius: 12px; border: 1px solid var(--clr-primary); text-align: center; max-width: 400px; width: 90%;">
+            <h2 style="font-family: var(--font-heading); color: white; margin-bottom: 20px;">CHECKOUT LOCKOUT</h2>
+            <p style="color:var(--clr-text-muted); margin-bottom: 20px; font-size: 0.9rem;">Pre-Launch sequence active. Enter authorization code.</p>
+            <input type="password" id="admin-pass" onkeydown="if(event.key === 'Enter') checkAuth()" class="control-input" placeholder="Enter Clearance Code" style="width: 100%; margin-bottom: 20px; text-align: center; letter-spacing: 2px;">
+            <button onclick="checkAuth()" class="btn-action" style="width: 100%;">AUTHENTICATE</button>
+        </div>
+    </div>
+    <script>
+        const checkAuth = () => {
+            const val = document.getElementById("admin-pass").value;
+            if(val === "admin" || val === "FBVR2026") {
+                document.getElementById("security-gate").style.display = "none";
+                sessionStorage.setItem("checkout_auth", "true");
+            } else {
+                alert("ACCESS DENIED: Invalid Passkey");
+            }
+        };
+
+        if(sessionStorage.getItem("checkout_auth") === "true") {
+            const gate = document.getElementById("security-gate");
+            if(gate) gate.style.display = 'none';
+        }
+    </script>
+
     <!-- Navigation Overlay -->
     <nav class="glass-header">
         <div class="logo">
