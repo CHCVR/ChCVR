@@ -349,22 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const frameCount = 240;
     const images = [];
-    let imagesLoaded = 0;
-    
-    // Preload all frames
-    for (let i = 0; i < frameCount; i++) {
-        const img = new Image();
-        const frameIndex = i.toString().padStart(3, '0');
-        img.src = `assets/sequence/frame_${frameIndex}.png`;
-        img.onload = () => {
-            imagesLoaded++;
-            if (imagesLoaded === 1) {
-                // Render first frame immediately
-                resizeCanvas();
-            }
-        };
-        images.push(img);
-    }
     
     let canvasWidth, canvasHeight;
     
@@ -374,6 +358,27 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         renderCanvasFrame();
+    };
+
+    // Phase 1: Mount Critical Origin Engine Frame instantly to prevent FOUC
+    const originFrame = new Image();
+    originFrame.src = 'assets/sequence/frame_000.png';
+    originFrame.fetchPriority = "high";
+    
+    originFrame.onload = () => {
+        images[0] = originFrame;
+        resizeCanvas();
+
+        // Phase 2: Unblock hardware UI threading and defer backend stream loading massively
+        setTimeout(() => {
+            for (let i = 1; i < frameCount; i++) {
+                const img = new Image();
+                const frameIndex = i.toString().padStart(3, '0');
+                img.fetchPriority = "low"; // Downgrade connection tier priority to preserve CSS layout execution
+                img.src = `assets/sequence/frame_${frameIndex}.png`;
+                images[i] = img;
+            }
+        }, 600); // 600ms grace period ensures CSS animations and UI event listeners register perfectly
     };
 
     window.addEventListener("resize", resizeCanvas);
