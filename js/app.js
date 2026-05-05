@@ -353,8 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let canvasWidth, canvasHeight;
     
     const resizeCanvas = () => {
-        canvasWidth = window.innerWidth;
-        canvasHeight = window.innerHeight;
+        canvasWidth = canvas.offsetWidth;
+        canvasHeight = canvas.offsetHeight;
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         renderCanvasFrame();

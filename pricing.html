@@ -6,6 +6,31 @@
     <title>Pricing | FULL BODY VR</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Google Translate Engine -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ 
+                pageLanguage: 'en', 
+                includedLanguages: 'fr,en', 
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false 
+            }, 'google_translate_element');
+        }
+
+        function setLanguage(lang) {
+            const combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+                combo.value = lang;
+                combo.dispatchEvent(new Event('change'));
+            }
+            
+            // Update UI
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+            });
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body data-theme="sci-fi">
     <!-- Navigation -->
@@ -13,7 +38,7 @@
         <div class="logo">
             <a href="/" style="display:flex; align-items:center; gap:25px; text-decoration:none;">
                 <img src="assets/logo.png" class="logo-img" alt="Logo">
-                <span style="color:var(--clr-primary);">FULL BODY VR</span>
+                <span style="color:white; font-family:var(--font-heading); font-weight:900;">FULL BODY VR <span class="highlight">RENTALS</span></span>
             </a>
         </div>
         <div class="nav-links">
@@ -21,7 +46,16 @@
             <a href="/pricing" class="active">PRICING</a>
             <a href="/gallery">GALLERY</a>
         </div>
-        <button class="cta-nav" onclick="document.getElementById('pricing').scrollIntoView({behavior: 'smooth'})">BOOK LOADOUT</button>
+        <div style="display:flex; align-items:center; gap: 1rem;">
+            <!-- Custom Language Toggle -->
+            <div class="language-switcher">
+                <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+                <button class="lang-btn" onclick="setLanguage('fr')">FR</button>
+            </div>
+            <!-- Hidden native element for the engine to hook into -->
+            <div id="google_translate_element"></div>
+            <button class="cta-nav" onclick="document.getElementById('pricing').scrollIntoView({behavior: 'smooth'})">BOOK LOADOUT</button>
+        </div>
     </nav>
 
     <main style="padding-top: 150px; min-height: 100vh;">

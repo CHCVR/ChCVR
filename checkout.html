@@ -212,11 +212,11 @@
                 </div>
             </div>
 
-            <!-- STEP 2: DEPLOYMENT SCHEDULING -->
+            <!-- STEP 2: DEPLOYMENT SCHEDULING & LOCATION -->
             <div class="step-panel glass-panel" id="step-2">
-                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">2 // DEPLOYMENT SCHEDULING</h2>
+                <h2 style="color:white; margin-bottom:1.5rem; border-bottom:1px solid var(--clr-primary); padding-bottom: 0.5rem; font-family: var(--font-heading);">2 // DEPLOYMENT SCHEDULING & ZONE</h2>
                 
-                <form id="form-schedule" onsubmit="event.preventDefault(); goToStep(3);">
+                <form id="form-schedule" onsubmit="event.preventDefault(); handleStep2Submission();">
                     <div class="glass-panel" style="padding:1.5rem; margin-bottom:1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--clr-primary); display: flex; flex-direction: row; flex-wrap: wrap; gap: 2rem;">
                         
                         <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -245,12 +245,24 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    <div class="glass-panel" style="padding:1.5rem; margin-bottom:1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--clr-primary);">
+                        <label class="form-label">4. FULL LOGISTICS DELIVERY ADDRESS *</label>
+                        <div style="position: relative; margin-bottom: 1rem;">
+                            <div style="display:flex; gap: 10px; align-items: stretch;">
+                                <input type="text" id="guest-address" class="form-control" required placeholder="123 Simulation Blvd, City, Postal Code" style="flex: 1 1 auto; width: 100%;" autocomplete="off">
+                                <button type="button" class="cta-primary" id="btn-verify-location" style="flex: 0 0 auto; width: max-content; padding: 0 2rem; white-space: nowrap;" onclick="verifyLocation()">VERIFY ZONE</button>
+                            </div>
+                            <ul id="address-suggestions" class="address-suggestions"></ul>
+                        </div>
+                        <div id="location-feedback" style="display:none; padding:10px; margin-top:10px; border-radius:4px; font-weight:bold; font-size:0.9rem;"></div>
+                        <div id="map-container" style="width: 100%; height: 250px; border-radius: 6px; border: 1px solid var(--glass-border); margin-top: 1rem; display: block; z-index: 1;"></div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; margin-top: 2rem;">
                         <button type="button" class="variant-btn" onclick="goToStep(1)">REVERT</button>
-                        <button type="submit" class="cta-primary">PROCEED TO DOSSIER</button>
+                        <button type="submit" class="cta-primary">SECURE TIME & ZONE</button>
                     </div>
                 </form>
             </div>
@@ -287,20 +299,7 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div style="flex:1;">
-                            <label class="form-label">FULL LOGISTICS DELIVERY ADDRESS *</label>
-                            <div style="position: relative;">
-                                <div style="display:flex; gap: 10px; align-items: stretch;">
-                                    <input type="text" id="guest-address" class="form-control" required placeholder="123 Simulation Blvd, City, Postal Code" style="flex: 1 1 auto; width: 100%;" autocomplete="off">
-                                    <button type="button" class="cta-primary" id="btn-verify-location" style="flex: 0 0 auto; width: max-content; padding: 0 2rem; white-space: nowrap;" onclick="verifyLocation()">VERIFY</button>
-                                </div>
-                                <ul id="address-suggestions" style="position:absolute; top:calc(100% + 5px); left:0; width:100%; max-width: calc(100% - 150px); background:#05080f; border:1px solid var(--clr-primary); border-radius:6px; list-style:none; margin:0; padding:0; z-index:1000; max-height:250px; overflow-y:auto; display:none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></ul>
-                            </div>
-                            <div id="location-feedback" style="display:none; padding:10px; margin-top:10px; border-radius:4px; font-weight:bold; font-size:0.9rem;"></div>
-                            <div id="map-container" style="width: 100%; height: 250px; border-radius: 6px; border: 1px solid var(--glass-border); margin-top: 1rem; display: block; z-index: 1;"></div>
-                        </div>
-                    </div>
+
                     
                     <div class="form-row">
                         <div class="form-group" style="flex:2;">
@@ -565,13 +564,25 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const rawPayload = localStorage.getItem("vr_checkout_payload");
+            const leadDate = localStorage.getItem("vr_lead_date");
+            const leadAddress = localStorage.getItem("vr_lead_address");
+            const leadVerified = localStorage.getItem("vr_lead_verified");
+
             if(rawPayload) {
                 payload = JSON.parse(rawPayload);
                 populateSummary(payload);
                 initScheduler();
                 autoFillSignatureDate();
+
+                // Inject Lead Data if present
+                if(leadDate) document.getElementById("sched-date").value = leadDate;
+                if(leadAddress) document.getElementById("guest-address").value = leadAddress;
+                if(leadVerified === "true") {
+                    isLocationVerified = true;
+                    // Trigger visual verification on Step 2 start if address is present
+                    if(leadAddress) setTimeout(() => verifyLocation(), 500);
+                }
             } else {
-                // Kick back to configurator if URL is hit naked
                 window.location.href = "pricing.html";
             }
         });
@@ -962,11 +973,16 @@
             }
         }
 
-        async function submitDossier() {
+        async function handleStep2Submission() {
             if(!isLocationVerified) {
                 const verified = await verifyLocation();
-                if(!verified) return; // Halt progression natively 
+                if(!verified) return;
             }
+            goToStep(3);
+        }
+
+        async function submitDossier() {
+            // Step 3 now only has personal info
             goToStep(4);
         }
 
@@ -1047,29 +1063,38 @@
                     const durH = payload.mode === 'event' ? (payload.eventBlock === 'half' ? 4 : 8) : parseInt(document.getElementById("sched-duration").value);
 
                     const dbPayload = {
-                        booking_hash: window.activeBookingId || generateHash("FBVR"),
-                        name: document.getElementById("guest-name").value,
-                        email: document.getElementById("guest-email").value,
-                        phone: document.getElementById("guest-phone").value,
+                        booking_hash: window.activeBookingId || "FBVR-" + Date.now().toString(36).toUpperCase(),
+                        name: document.getElementById("cus-name").value,
+                        email: document.getElementById("cus-email").value,
+                        phone: document.getElementById("cus-phone").value,
                         address: document.getElementById("guest-address").value,
                         date: document.getElementById("sched-date").value,
                         start_hour: startH,
                         duration: durH,
-                        guests: 1, // defaulted
+                        guests: parseInt(document.getElementById("cus-guests").value) || 1,
                         charge: payload.finalTotal,
                         status: "upcoming",
-                        addons: [], // simplified map
-                        comments: document.getElementById("guest-comments").value || ""
+                        addons: payload.addons || [], 
+                        comments: document.getElementById("cus-notes").value || ""
                     };
 
+                    // Primary Database Record Sync
                     await supabaseClient.from("bookings").insert([dbPayload]);
+
+                    // Secondary Logic: Dispatch Administrative Notification
+                    fetch("/api/send-booking-email", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ bookingDetails: dbPayload })
+                    }).catch(err => console.error("Email notification dispatch failed", err));
+
                 } catch(e) {
-                    console.error("Supabase Bookings Push Failed", e);
+                    console.error("Post-Payment Sync Failed", e);
                 }
 
-                document.getElementById("success-ref").innerText = window.activeBookingId;
-                goToStep(5);
-                localStorage.removeItem("vr_checkout_payload"); // wipe active cart state
+                document.getElementById("success-ref").innerText = window.activeBookingId || "FBVR-SYNC-PENDING";
+                goToStep(6);
+                localStorage.removeItem("vr_checkout_payload");
             }
         });
     </script>

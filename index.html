@@ -1,59 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hyper-VR | Premium Rentals</title>
-    <meta name="description" content="Experience hyper-premium VR treadmill rentals with KAT mini S, bHaptics, and VIVE Focus Vision.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="description"
+        content="Experience hyper-premium VR treadmill rentals with KAT mini S, bHaptics, and VIVE Focus Vision.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    
+
     <!-- Critical Render Path: High Priority Native Texture Preloading -->
     <link rel="preload" as="image" href="assets/hero_setup.png" fetchpriority="high">
     <link rel="preload" as="image" href="assets/sequence/frame_000.png" fetchpriority="high">
-    
-    <!-- Google Translate Engine (Hidden) -->
+
+    <!-- Google Translate Engine -->
     <script type="text/javascript">
         function googleTranslateElementInit() {
-            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'fr,en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+            new google.translate.TranslateElement({ 
+                pageLanguage: 'en', 
+                includedLanguages: 'fr,en', 
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false 
+            }, 'google_translate_element');
+        }
+
+        function setLanguage(lang) {
+            const combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+                combo.value = lang;
+                combo.dispatchEvent(new Event('change'));
+            }
+            
+            // Update UI
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+            });
         }
     </script>
-    <!-- Use direct HTTPS protocol to prevent file:// loading failures -->
     <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-    <style>
-        /* Force Native Google UI into a Custom Button Template */
-        .goog-te-banner-frame { display: none !important; }
-        body { top: 0 !important; }
 
-        .goog-te-gadget-simple {
-            background-color: transparent !important;
-            border: 1px solid var(--clr-text-muted) !important;
-            border-radius: 4px !important;
-            padding: 0.5rem 1rem !important;
-            font-family: var(--font-heading) !important;
-            font-size: 0.8rem !important;
-            font-weight: 700 !important;
-            transition: all 0.3s ease !important;
-            letter-spacing: 1px;
-            display: inline-block !important;
-        }
-        .goog-te-gadget-simple:hover {
-            border-color: var(--clr-primary) !important;
-            box-shadow: inset 0 0 10px rgba(213,0,255,0.2) !important;
-        }
-        .goog-te-gadget-icon { display: none !important; }
-        .goog-te-menu-value span { color: white !important; text-transform: uppercase; }
-        .goog-te-menu-value:hover span { color: var(--clr-primary) !important; }
-    </style>
 </head>
+
 <body data-theme="sci-fi">
-    
+
     <!-- Navigation -->
     <nav class="glass-header">
         <div class="logo">
             <a href="/" style="display:flex; align-items:center; gap:25px; text-decoration:none;">
                 <img src="assets/logo.png" class="logo-img" alt="Logo">
-                <span style="color:var(--clr-primary);">FULL BODY VR</span>
+                <span style="color:white; font-family:var(--font-heading); font-weight:900;">FULL BODY VR <span class="highlight">RENTALS</span></span>
             </a>
         </div>
         <div class="nav-links">
@@ -62,8 +60,13 @@
             <a href="/gallery">GALLERY</a>
         </div>
         <div style="display:flex; align-items:center; gap: 1rem;">
-            <!-- Render Google's native dropdown natively but with our aggressive CSS overrides -->
-            <div id="google_translate_element" style="height: 38px; overflow:hidden;"></div>
+            <!-- Custom Language Toggle -->
+            <div class="language-switcher">
+                <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+                <button class="lang-btn" onclick="setLanguage('fr')">FR</button>
+            </div>
+            <!-- Hidden native element for the engine to hook into -->
+            <div id="google_translate_element"></div>
             <button class="cta-nav" onclick="window.location.href='pricing.html'">BOOK LOADOUT</button>
         </div>
     </nav>
@@ -76,29 +79,173 @@
             <div class="hero-sticky-container">
                 <!-- Background Layer (Blurred Environment) -->
                 <div class="parallax-layer parallax-bg"></div>
-                
-                <!-- Midground WebP Sequence Canvas -->
-                <div class="parallax-layer parallax-mid">
-                    <canvas id="hero-canvas"></canvas>
-                </div>
 
-                <!-- Foreground HUD Layer -->
+                <!-- Foreground HUD Layer (Left Side) -->
                 <div class="parallax-layer parallax-hud">
                     <div class="hud-lines"></div>
                     <div class="hud-content">
                         <h1 class="hero-title">ENTER THE<br><span class="highlight">NEXT DIMENSION</span></h1>
-                        <p class="hero-subtitle">Industrial-grade VR hardware. Delivered.</p>
+                        <p class="hero-subtitle">Bringing industrial grade VR equipment straight to your door for all your VR needs.</p>
                     </div>
+                </div>
+
+                <!-- Midground WebP Sequence Canvas (Right Side) -->
+                <div class="parallax-layer parallax-mid">
+                    <canvas id="hero-canvas"></canvas>
                 </div>
             </div>
         </section>
 
+        <!-- Availability Capture Pipeline -->
+        <section class="availability-check glass-panel" style="margin: -2rem 10vw 4rem; position: relative; z-index: 30; padding: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--clr-primary);">READY TO STEP IN?</h2>
+                    <p style="color: var(--clr-text-muted);">Check if your date and location are cleared for deployment.</p>
+                </div>
+                <div style="flex: 2; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;">TARGET DATE</label>
+                        <input type="date" id="lead-date" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px; color-scheme: dark;">
+                    </div>
+                    <div style="flex: 1.5; min-width: 250px; position: relative;">
+                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;">DEPLOYMENT LOCATION</label>
+                        <input type="text" id="lead-address" placeholder="Enter City or Full Address" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px;" autocomplete="off">
+                        <ul id="lead-address-suggestions" class="address-suggestions"></ul>
+                    </div>
+                    <button class="cta-primary" onclick="checkLeadAvailability()" style="width: auto; padding: 1rem 2rem;">CHECK AVAILABILITY</button>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            async function checkLeadAvailability() {
+                const date = document.getElementById('lead-date').value;
+                const address = document.getElementById('lead-address').value;
+                const btn = document.querySelector('.availability-check .cta-primary');
+
+                if (!date || !address) {
+                    alert("Please enter both date and location coordinates.");
+                    return;
+                }
+
+                // Visual Feedback
+                const originalText = btn.innerText;
+                btn.disabled = true;
+                btn.innerHTML = "SCANNING... <div class='cyber-spinner' style='width:15px;height:15px;display:inline-block;border-width:2px;vertical-align:middle;margin-left:5px;'></div>";
+
+                try {
+                    // 1. Check Distance (Nominatim)
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
+                    const data = await res.json();
+                    
+                    if(!data || data.length === 0) {
+                        alert("COORDINATE ERROR: Address not found. Please be more specific (City, Province).");
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        return;
+                    }
+
+                    const targetLat = parseFloat(data[0].lat);
+                    const targetLon = parseFloat(data[0].lon);
+                    const BRAMPTON_COORDS = [43.7315, -79.7624];
+                    
+                    const getDistance = (lat1, lon1, lat2, lon2) => {
+                        const R = 6371;
+                        const dLat = (lat2 - lat1) * (Math.PI/180);
+                        const dLon = (lon2 - lon1) * (Math.PI/180);
+                        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+                        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    };
+
+                    const distance = getDistance(BRAMPTON_COORDS[0], BRAMPTON_COORDS[1], targetLat, targetLon);
+
+                    if (distance > 70) {
+                        alert(`LOGISTICS ERROR: ${address} is outside our 70km delivery radius. We are based in Brampton.`);
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        return;
+                    }
+
+                    // 2. Mock Date Availability Check
+                    // (In production, this would hit your Supabase 'bookings' table)
+                    const mockBlockedDates = ["2026-12-25", "2026-01-01"];
+                    if (mockBlockedDates.includes(date)) {
+                        alert("BLACKOUT DATE: Hardware is fully deployed or offline for maintenance on this date.");
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        return;
+                    }
+
+                    // Success: Pass data to next step
+                    localStorage.setItem("vr_lead_date", date);
+                    localStorage.setItem("vr_lead_address", address);
+                    localStorage.setItem("vr_lead_verified", "true");
+                    
+                    alert("DEPLOYMENT CLEARANCE: Location and Date are within active zones. Proceeding to Loadout Configuration.");
+                    window.location.href = "pricing.html";
+
+                } catch (e) {
+                    console.error(e);
+                    alert("NETWORK ERROR: Uplink failed. Please try again.");
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+
+            // Photon Autocomplete Logic for Lead Form
+            const leadAddressInput = document.getElementById("lead-address");
+            const leadSuggestionBox = document.getElementById("lead-address-suggestions");
+            let leadSuggestionTimeout;
+
+            leadAddressInput.addEventListener("input", (e) => {
+                clearTimeout(leadSuggestionTimeout);
+                const query = e.target.value.trim();
+                if(query.length < 4) {
+                    leadSuggestionBox.style.display = "none";
+                    return;
+                }
+                leadSuggestionTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lat=43.7315&lon=-79.7624`);
+                        const data = await res.json();
+                        leadSuggestionBox.innerHTML = "";
+                        if(data.features && data.features.length > 0) {
+                            data.features.forEach(f => {
+                                const props = f.properties;
+                                const displayName = [props.housenumber, props.street, props.city, props.state, props.postcode].filter(Boolean).join(", ");
+                                if(!displayName || displayName.length < 5) return;
+                                const li = document.createElement("li");
+                                li.innerText = displayName;
+                                li.onclick = () => {
+                                    leadAddressInput.value = displayName;
+                                    leadSuggestionBox.style.display = "none";
+                                };
+                                leadSuggestionBox.appendChild(li);
+                            });
+                            if(leadSuggestionBox.innerHTML !== "") {
+                                leadSuggestionBox.style.display = "block";
+                            }
+                        }
+                    } catch(err) { console.error("Photon Map Engine Offline", err); }
+                }, 400);
+            });
+
+            document.addEventListener("click", (e) => {
+                if(e.target !== leadAddressInput) leadSuggestionBox.style.display = "none";
+            });
+        </script>
+
         <!-- Canadian Roots Heritage Banner -->
-        <div style="text-align:center; padding: 2.5rem 10vw; background: rgba(5,0,10,0.85); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); z-index: 20; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.8);">
-            <p style="color:var(--clr-text-muted); font-size:1.3rem; font-family:var(--font-heading); letter-spacing: 3px; margin:0; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <img src="assets/canada.png" alt="Canada" style="height:28px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
+        <div
+            style="text-align:center; padding: 2.5rem 10vw; background: rgba(5,0,10,0.85); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); z-index: 20; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.8);">
+            <p
+                style="color:var(--clr-text-muted); font-size:1.3rem; font-family:var(--font-heading); letter-spacing: 3px; margin:0; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <img src="assets/canada.png" alt="Canada"
+                    style="height:28px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
                 FROM CANADIAN ROOTS, WE BUILD NEW REALITIES
-                <img src="assets/canada.png" alt="Canada" style="height:28px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
+                <img src="assets/canada.png" alt="Canada"
+                    style="height:28px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
             </p>
         </div>
 
@@ -128,33 +275,104 @@
             </div>
         </section>
 
-        <!-- Hardware Marquee Stage -->
-        <section class="hardware-showcase">
-            <h2 class="section-title">ENGINEERED FOR IMMERSION</h2>
-            <div class="marquee-container">
-                <div class="marquee-track">
-                    <!-- Original Set -->
-                    <img src="assets/Katminis.png" alt="KAT mini S">
-                    <img src="assets/bhaptics.png" alt="Bhaptics TactSuit">
-                    <img src="assets/Striker.png" alt="StrikerVR">
-                    <!-- Duplicated Set for Infinite Loop -->
-                    <img src="assets/Katminis.png" alt="KAT mini S">
-                    <img src="assets/bhaptics.png" alt="Bhaptics TactSuit">
-                    <img src="assets/Striker.png" alt="StrikerVR">
+        <!-- VR Solutions Section -->
+        <section class="vr-solutions" style="padding: 4rem 10vw; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.02);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; text-align: center; align-items: center;">
+                <div style="padding: 0 1rem; border-right: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Too cold to go outside, but still want to stay active? Step into Full Body VR and keep moving."</p>
+                </div>
+                <div style="padding: 0 1rem; border-right: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Gym too crowded? Get a full workout in VR with zero waiting and zero judgment."</p>
+                </div>
+                <div style="padding: 0 1rem;">
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Want more than just controller gaming? Experience full-body immersion instead."</p>
                 </div>
             </div>
         </section>
 
+        <!-- Hardware Marquee Stage -->
+        <section class="hardware-showcase">
+            <h2 class="section-title">EQUIPMENT ENGINEERED FOR IMMERSION</h2>
+            <div class="marquee-container">
+                <div class="marquee-track">
+                    <!-- Original Set -->
+                    <img src="assets/Katminis.png" alt="KAT mini S" onclick="openEquipmentModal('kat-mini-s')" style="cursor:pointer;">
+                    <img src="assets/bhaptics.png" alt="Bhaptics TactSuit" onclick="openEquipmentModal('bhaptics-vest')" style="cursor:pointer;">
+                    <img src="assets/Striker.png" alt="StrikerVR" onclick="openEquipmentModal('kat-striker')" style="cursor:pointer;">
+                    <!-- Duplicated Set for Infinite Loop -->
+                    <img src="assets/Katminis.png" alt="KAT mini S" onclick="openEquipmentModal('kat-mini-s')" style="cursor:pointer;">
+                    <img src="assets/bhaptics.png" alt="Bhaptics TactSuit" onclick="openEquipmentModal('bhaptics-vest')" style="cursor:pointer;">
+                    <img src="assets/Striker.png" alt="StrikerVR" onclick="openEquipmentModal('kat-striker')" style="cursor:pointer;">
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 4rem;">
+                <button class="cta-primary" onclick="window.location.href='pricing.html'" style="max-width: 300px;">BOOK NOW</button>
+            </div>
+        </section>
+
+        <!-- Equipment Modals -->
+        <div id="equip-modal" class="modal-overlay" onclick="closeEquipmentModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(10px);">
+            <div class="glass-panel" onclick="event.stopPropagation()" style="max-width:600px; padding:3rem; position:relative; border:1px solid var(--clr-primary);">
+                <button onclick="closeEquipmentModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--clr-primary); font-size:2rem; cursor:pointer;">&times;</button>
+                <div id="modal-content">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const equipmentData = {
+                'kat-striker': {
+                    title: 'KAT Striker',
+                    desc: 'A precision VR gun controller that gives you natural aiming, fast response, and realistic handling for every shooter experience.'
+                },
+                'bhaptics-vest': {
+                    title: 'bHaptics Vest',
+                    desc: 'A full-body haptic vest that lets you feel every impact, vibration, and moment in VR with immersive, high-definition feedback.'
+                },
+                'kat-mini-s': {
+                    title: 'KAT Mini-S',
+                    desc: 'A compact VR locomotion platform that lets you walk, run, and move freely in 360°—all while staying in one spot.'
+                }
+            };
+
+            function openEquipmentModal(id) {
+                const data = equipmentData[id];
+                const content = `
+                    <h2 style="color:var(--clr-primary); margin-bottom:1.5rem;">${data.title}</h2>
+                    <p style="font-size:1.2rem; line-height:1.8; color:white;">${data.desc}</p>
+                `;
+                document.getElementById('modal-content').innerHTML = content;
+                const modal = document.getElementById('equip-modal');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeEquipmentModal() {
+                document.getElementById('equip-modal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        </script>
+
         <!-- Pricing has been moved to pricing.html -->
 
         <!-- About / Mission Core -->
-        <section class="about-section" style="padding: 6rem 5%; background: linear-gradient(to top, #05080f, rgba(10,14,23,0.5)); border-top: 1px solid rgba(213,0,255,0.1); text-align:center;">
+        <section class="about-section"
+            style="padding: 6rem 5%; background: linear-gradient(to top, #05080f, rgba(10,14,23,0.5)); border-top: 1px solid rgba(213,0,255,0.1); text-align:center;">
             <h2 class="section-title">THE <span style="color: var(--clr-primary);">DREAM</span></h2>
-            <p style="color: var(--clr-text-muted); font-size: 1.2rem; max-width: 800px; margin: 2rem auto; line-height: 1.8;">
-                Our mission is to bring high-immersion omnidirectional treadmill gaming into your personal space. We believe in providing the absolute peak of virtual reality with complete privacy, zero compromises, and the flexibility to make any event completely memorable.
+            <p
+                style="color: var(--clr-text-muted); font-size: 1.2rem; max-width: 800px; margin: 2rem auto; line-height: 1.8;">
+                Our mission is to bring high-immersion omnidirectional treadmill gaming into your personal space. We
+                believe in providing the absolute peak of virtual reality with complete privacy, zero compromises, and
+                the flexibility to make any event completely memorable.
             </p>
-            <p style="color: white; font-size: 1.1rem; max-width: 800px; margin: 0 auto; line-height: 1.8; font-weight: 300;">
-                By utilizing intelligence-driven logistics and state-of-the-art sensory synchronization, we heighten the ultimate goal: <strong style="color: var(--clr-primary); font-family:var(--font-heading); letter-spacing:1px;">TRUE FULL-BODY VR.</strong> No arcades. No shared headsets. Just you, the treadmill, and infinite realities delivered directly to your door.
+            <p
+                style="color: white; font-size: 1.1rem; max-width: 800px; margin: 0 auto; line-height: 1.8; font-weight: 300;">
+                By utilizing intelligence-driven logistics and state-of-the-art sensory synchronization, we heighten the
+                ultimate goal: <strong
+                    style="color: var(--clr-primary); font-family:var(--font-heading); letter-spacing:1px;">TRUE
+                    FULL-BODY VR.</strong> No arcades. No shared headsets. Just you, the treadmill, and infinite
+                realities delivered directly to your door.
             </p>
         </section>
     </main>
@@ -164,9 +382,11 @@
         <div class="footer-content">
             <div class="footer-socials">
                 <a href="https://www.instagram.com/fullbody.vr/" target="_blank" class="social-icon">INSTAGRAM</a>
-                <a href="https://www.facebook.com/people/Full-body-vr/61574741326517/" target="_blank" class="social-icon">FACEBOOK</a>
+                <a href="https://www.facebook.com/people/Full-body-vr/61574741326517/" target="_blank"
+                    class="social-icon">FACEBOOK</a>
                 <a href="#" class="social-icon">X/TWITTER</a>
-                <a href="https://www.tiktok.com/@fullbodyvr?_r=1&_t=Zs-95sM8JHTbJR" target="_blank" class="social-icon">TIKTOK</a>
+                <a href="https://www.tiktok.com/@fullbodyvr?_r=1&_t=Zs-95sM8JHTbJR" target="_blank"
+                    class="social-icon">TIKTOK</a>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 FULL BODY VR. All rights reserved.</p>
@@ -177,4 +397,5 @@
 
     <script src="js/app.js"></script>
 </body>
+
 </html>
