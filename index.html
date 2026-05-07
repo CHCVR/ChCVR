@@ -35,11 +35,31 @@
                 combo.dispatchEvent(new Event('change'));
             }
             
+            // Local Translation Logic for premium feel and JS alerts
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const text = lang === 'fr' ? el.getAttribute('data-fr') : el.getAttribute('data-en');
+                if (el.tagName === 'INPUT' && el.placeholder) {
+                    el.placeholder = text;
+                } else {
+                    el.innerHTML = text; // Changed to innerHTML to support <br>
+                }
+            });
+
             // Update UI
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
             });
+
+            localStorage.setItem('preferred_lang', lang);
         }
+
+        // Apply saved language on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferred_lang');
+            if (savedLang) {
+                setTimeout(() => setLanguage(savedLang), 1000); // Small delay to let Google Translate load
+            }
+        });
     </script>
     <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
@@ -85,8 +105,12 @@
                 <div class="parallax-layer parallax-hud">
                     <div class="hud-lines"></div>
                     <div class="hud-content">
-                        <h1 class="hero-title">ENTER THE<br><span class="highlight">NEXT DIMENSION</span></h1>
-                        <p class="hero-subtitle">Bringing industrial grade VR equipment straight to your door for all your VR needs.</p>
+                        <h1 class="hero-title" data-en="ENTER THE<br><span class='highlight'>NEXT DIMENSION</span>" data-fr="ENTREZ DANS LA<br><span class='highlight'>PROCHAINE DIMENSION</span>">ENTER THE<br><span class="highlight">NEXT DIMENSION</span></h1>
+                        <p class="hero-subtitle" data-en="Bringing industrial grade VR equipment straight to your door for all your VR needs." data-fr="Apportez de l'équipement VR de qualité industrielle directement à votre porte pour tous vos besoins en VR.">Bringing industrial grade VR equipment straight to your door for all your VR needs.</p>
+                        <div class="hero-actions">
+                            <button class="cta-primary" onclick="window.location.href='pricing.html'" data-en="INITIALIZE DEPLOYMENT" data-fr="INITIALISER LE DÉPLOIEMENT">INITIALIZE DEPLOYMENT</button>
+                            <button class="cta-secondary" onclick="document.getElementById('equipment').scrollIntoView({behavior:'smooth'})" data-en="VIEW SPEC SHEETS" data-fr="VOIR LES FICHES TECHNIQUES">VIEW SPEC SHEETS</button>
+                        </div>
                     </div>
                 </div>
 
@@ -101,20 +125,20 @@
         <section class="availability-check glass-panel" style="margin: -2rem 10vw 4rem; position: relative; z-index: 30; padding: 3rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--clr-primary);">READY TO STEP IN?</h2>
-                    <p style="color: var(--clr-text-muted);">Check if your date and location are cleared for deployment.</p>
+                    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--clr-primary);" data-en="READY TO STEP IN?" data-fr="PRÊT À ENTRER ?">READY TO STEP IN?</h2>
+                    <p style="color: var(--clr-text-muted);" data-en="Check if your date and location are cleared for deployment." data-fr="Vérifiez si votre date et votre lieu sont autorisés pour le déploiement.">Check if your date and location are cleared for deployment.</p>
                 </div>
                 <div style="flex: 2; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;">TARGET DATE</label>
+                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;" data-en="TARGET DATE" data-fr="DATE CIBLE">TARGET DATE</label>
                         <input type="date" id="lead-date" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px; color-scheme: dark;">
                     </div>
                     <div style="flex: 1.5; min-width: 250px; position: relative;">
-                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;">DEPLOYMENT LOCATION</label>
-                        <input type="text" id="lead-address" placeholder="Enter City or Full Address" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px;" autocomplete="off">
+                        <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;" data-en="DEPLOYMENT LOCATION" data-fr="LIEU DE DÉPLOIEMENT">DEPLOYMENT LOCATION</label>
+                        <input type="text" id="lead-address" placeholder="Enter City or Full Address" data-en="Enter City or Full Address" data-fr="Entrez la ville ou l'adresse complète" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px;" autocomplete="off">
                         <ul id="lead-address-suggestions" class="address-suggestions"></ul>
                     </div>
-                    <button class="cta-primary" onclick="checkLeadAvailability()" style="width: auto; padding: 1rem 2rem;">CHECK AVAILABILITY</button>
+                    <button class="cta-primary" onclick="checkLeadAvailability()" style="width: auto; padding: 1rem 2rem;" data-en="CHECK AVAILABILITY" data-fr="VÉRIFIER LA DISPONIBILITÉ">CHECK AVAILABILITY</button>
                 </div>
             </div>
         </section>
@@ -136,12 +160,12 @@
                 btn.innerHTML = "SCANNING... <div class='cyber-spinner' style='width:15px;height:15px;display:inline-block;border-width:2px;vertical-align:middle;margin-left:5px;'></div>";
 
                 try {
-                    // 1. Check Distance (Nominatim)
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
                     const data = await res.json();
                     
                     if(!data || data.length === 0) {
-                        alert("COORDINATE ERROR: Address not found. Please be more specific (City, Province).");
+                        const msg = localStorage.getItem('preferred_lang') === 'fr' ? "ERREUR DE COORDONNÉES : Adresse non trouvée. Veuillez être plus précis (Ville, Province)." : "COORDINATE ERROR: Address not found. Please be more specific (City, Province).";
+                        alert(msg);
                         btn.disabled = false;
                         btn.innerText = originalText;
                         return;
@@ -162,33 +186,33 @@
                     const distance = getDistance(BRAMPTON_COORDS[0], BRAMPTON_COORDS[1], targetLat, targetLon);
 
                     if (distance > 70) {
-                        alert(`LOGISTICS ERROR: ${address} is outside our 70km delivery radius. We are based in Brampton.`);
+                        const msg = localStorage.getItem('preferred_lang') === 'fr' ? `ERREUR LOGISTIQUE : ${address} est en dehors de notre rayon de livraison de 70 km. Nous sommes basés à Brampton.` : `LOGISTICS ERROR: ${address} is outside our 70km delivery radius. We are based in Brampton.`;
+                        alert(msg);
                         btn.disabled = false;
                         btn.innerText = originalText;
                         return;
                     }
 
-                    // 2. Mock Date Availability Check
-                    // (In production, this would hit your Supabase 'bookings' table)
                     const mockBlockedDates = ["2026-12-25", "2026-01-01"];
                     if (mockBlockedDates.includes(date)) {
-                        alert("BLACKOUT DATE: Hardware is fully deployed or offline for maintenance on this date.");
+                        const msg = localStorage.getItem('preferred_lang') === 'fr' ? "DATE BLOQUÉE : Le matériel est entièrement déployé ou hors ligne pour maintenance à cette date." : "BLACKOUT DATE: Hardware is fully deployed or offline for maintenance on this date.";
+                        alert(msg);
                         btn.disabled = false;
                         btn.innerText = originalText;
                         return;
                     }
 
-                    // Success: Pass data to next step
                     localStorage.setItem("vr_lead_date", date);
                     localStorage.setItem("vr_lead_address", address);
                     localStorage.setItem("vr_lead_verified", "true");
                     
-                    alert("DEPLOYMENT CLEARANCE: Location and Date are within active zones. Proceeding to Loadout Configuration.");
+                    const successMsg = localStorage.getItem('preferred_lang') === 'fr' ? "AUTORISATION DE DÉPLOIEMENT : Le lieu et la date sont dans les zones actives. Passage à la configuration du chargement." : "DEPLOYMENT CLEARANCE: Location and Date are within active zones. Proceeding to Loadout Configuration.";
+                    alert(successMsg);
                     window.location.href = "pricing.html";
 
                 } catch (e) {
-                    console.error(e);
-                    alert("NETWORK ERROR: Uplink failed. Please try again.");
+                    const errorMsg = localStorage.getItem('preferred_lang') === 'fr' ? "ERREUR RÉSEAU : Échec de la liaison montante. Veuillez réessayer." : "NETWORK ERROR: Uplink failed. Please try again.";
+                    alert(errorMsg);
                     btn.disabled = false;
                     btn.innerText = originalText;
                 }
@@ -253,19 +277,19 @@
         <!-- Experience Variants Toggle -->
         <section class="experience-variants">
             <div class="variant-controls glass-panel">
-                <h3>SELECT BATTLESPACE</h3>
+                <h3 data-en="SELECT BATTLESPACE" data-fr="SÉLECTIONNER LE CHAMP DE BATAILLE">SELECT BATTLESPACE</h3>
                 <div class="variant-buttons">
-                    <button class="variant-btn active" data-variant="sci-fi">Sci-Fi (Default)</button>
-                    <button class="variant-btn" data-variant="tactical">Tactical Strike</button>
-                    <button class="variant-btn" data-variant="undead">Undead Survival</button>
-                    <button class="variant-btn" data-variant="cyber">Cyber Arena</button>
+                    <button class="variant-btn active" data-variant="sci-fi" data-en="Sci-Fi (Default)" data-fr="Sci-Fi (Défaut)">Sci-Fi (Default)</button>
+                    <button class="variant-btn" data-variant="tactical" data-en="Tactical Strike" data-fr="Frappe Tactique">Tactical Strike</button>
+                    <button class="variant-btn" data-variant="undead" data-en="Undead Survival" data-fr="Survie des Morts-Vivants">Undead Survival</button>
+                    <button class="variant-btn" data-variant="cyber" data-en="Cyber Arena" data-fr="Cyber Arène">Cyber Arena</button>
                 </div>
             </div>
         </section>
 
         <!-- Game Library -->
         <section class="game-library glass-panel">
-            <h2 class="section-title">FEATURED ARSENAL</h2>
+            <h2 class="section-title" data-en="FEATURED ARSENAL" data-fr="ARSENAL EN VEDETTE">FEATURED ARSENAL</h2>
             <div class="games-grid">
                 <div class="game-card"><img src="assets/game1.png" alt="Featured Game"></div>
                 <div class="game-card"><img src="assets/Game2.png" alt="Featured Game"></div>
@@ -280,20 +304,20 @@
         <section class="vr-solutions" style="padding: 4rem 10vw; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.02);">
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; text-align: center; align-items: center;">
                 <div style="padding: 0 1rem; border-right: 1px solid rgba(255,255,255,0.1);">
-                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Too cold to go outside, but still want to stay active? Step into Full Body VR and keep moving."</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);" data-en='"Too cold to go outside, but still want to stay active? Step into Full Body VR and keep moving."' data-fr='"Trop froid pour sortir, mais vous voulez quand même rester actif ? Entrez dans la VR intégrale et continuez à bouger."'>"Too cold to go outside, but still want to stay active? Step into Full Body VR and keep moving."</p>
                 </div>
                 <div style="padding: 0 1rem; border-right: 1px solid rgba(255,255,255,0.1);">
-                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Gym too crowded? Get a full workout in VR with zero waiting and zero judgment."</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);" data-en='"Gym too crowded? Get a full workout in VR with zero waiting and zero judgment."' data-fr='"Salle de sport trop bondée ? Entraînez-vous complètement en VR sans attente et sans jugement."'>"Gym too crowded? Get a full workout in VR with zero waiting and zero judgment."</p>
                 </div>
                 <div style="padding: 0 1rem;">
-                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);">"Want more than just controller gaming? Experience full-body immersion instead."</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: var(--clr-text-muted);" data-en='"No space for a treadmill? Let us bring the ultimate running experience to your living room."' data-fr='"Pas de place pour un tapis roulant ? Laissez-nous apporter l\'expérience de course ultime dans votre salon."'>"No space for a treadmill? Let us bring the ultimate running experience to your living room."</p>
                 </div>
             </div>
         </section>
 
         <!-- Hardware Marquee Stage -->
-        <section class="hardware-showcase">
-            <h2 class="section-title">EQUIPMENT ENGINEERED FOR IMMERSION</h2>
+        <section class="hardware-showcase" id="equipment">
+            <h2 class="section-title" data-en="EQUIPMENT ENGINEERED FOR IMMERSION" data-fr="ÉQUIPEMENT CONÇU POUR L'IMMERSION">EQUIPMENT ENGINEERED FOR IMMERSION</h2>
             <div class="marquee-container">
                 <div class="marquee-track">
                     <!-- Original Set -->
@@ -307,7 +331,7 @@
                 </div>
             </div>
             <div style="text-align: center; margin-top: 4rem;">
-                <button class="cta-primary" onclick="window.location.href='pricing.html'" style="max-width: 300px;">BOOK NOW</button>
+                <button class="cta-primary" onclick="window.location.href='pricing.html'" style="max-width: 300px;" data-en="BOOK NOW" data-fr="RÉSERVER MAINTENANT">BOOK NOW</button>
             </div>
         </section>
 
@@ -324,26 +348,26 @@
         <script>
             const equipmentData = {
                 'kat-striker': {
-                    title: 'KAT Striker',
-                    desc: 'A precision VR gun controller that gives you natural aiming, fast response, and realistic handling for every shooter experience.'
+                    en: { title: 'KAT Striker', desc: 'A precision VR gun controller that gives you natural aiming, fast response, and realistic handling for every shooter experience.' },
+                    fr: { title: 'KAT Striker', desc: 'Un contrôleur de pistolet VR de précision qui vous offre une visée naturelle, une réponse rapide et une manipulation réaliste pour chaque expérience de tir.' }
                 },
                 'bhaptics-vest': {
-                    title: 'bHaptics Vest',
-                    desc: 'A full-body haptic vest that lets you feel every impact, vibration, and moment in VR with immersive, high-definition feedback.'
+                    en: { title: 'bHaptics Vest', desc: 'A full-body haptic vest that lets you feel every impact, vibration, and moment in VR with immersive, high-definition feedback.' },
+                    fr: { title: 'Veste bHaptics', desc: 'Une veste haptique intégrale qui vous permet de ressentir chaque impact, vibration et moment en VR avec un retour immersif haute définition.' }
                 },
                 'kat-mini-s': {
-                    title: 'KAT Mini-S',
-                    desc: 'A compact VR locomotion platform that lets you walk, run, and move freely in 360°—all while staying in one spot.'
+                    en: { title: 'KAT Mini-S', desc: 'A compact VR locomotion platform that lets you walk, run, and move freely in 360°—all while staying in one spot.' },
+                    fr: { title: 'KAT Mini-S', desc: 'Une plateforme de locomotion VR compacte qui vous permet de marcher, courir et bouger librement à 360°—tout en restant sur place.' }
                 }
             };
 
             function openEquipmentModal(id) {
-                const data = equipmentData[id];
-                const content = `
-                    <h2 style="color:var(--clr-primary); margin-bottom:1.5rem;">${data.title}</h2>
-                    <p style="font-size:1.2rem; line-height:1.8; color:white;">${data.desc}</p>
+                const lang = localStorage.getItem('preferred_lang') || 'en';
+                const data = equipmentData[id][lang];
+                document.getElementById('modal-content').innerHTML = `
+                    <h2 style="color:var(--clr-primary); margin-bottom:1rem; font-family:var(--font-heading);">${data.title}</h2>
+                    <p style="color:white; line-height:1.6; font-size:1.1rem;">${data.desc}</p>
                 `;
-                document.getElementById('modal-content').innerHTML = content;
                 const modal = document.getElementById('equip-modal');
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
