@@ -1195,3 +1195,126 @@ body { top: 0 !important; }
     padding: 5px;
     border-radius: 4px;
 }
+
+/* --- MOBILE RESPONSIVENESS OVERHAUL --- */
+@media (max-width: 768px) {
+    /* Global Navigation Fixes */
+    nav {
+        padding: 1rem !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        height: auto !important;
+        background: rgba(5, 0, 10, 0.95) !important;
+        position: relative !important;
+    }
+    .logo {
+        font-size: 1.5rem !important;
+        gap: 10px !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    .logo-img {
+        height: 60px !important;
+    }
+    .nav-links {
+        display: none !important; 
+    }
+    .language-switcher {
+        order: 2;
+    }
+    .cta-nav {
+        order: 3;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Hero Section Stacking */
+    .hero-section {
+        height: auto !important;
+    }
+    .hero-sticky-container {
+        position: relative !important;
+        flex-direction: column !important;
+        height: auto !important;
+        padding-top: 40px;
+    }
+    .parallax-hud {
+        width: 100% !important;
+        padding: 2rem !important;
+        align-items: center !important;
+        text-align: center !important;
+        pointer-events: all !important;
+    }
+    .hero-title {
+        font-size: 2.2rem !important;
+    }
+    .hero-subtitle {
+        font-size: 1rem !important;
+    }
+    .hero-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    .parallax-mid {
+        width: 100% !important;
+        height: 300px !important;
+        margin-top: 2rem;
+    }
+    #hero-canvas {
+        height: 100% !important;
+        width: auto !important;
+        max-width: 100%;
+    }
+
+    /* Availability Capture Pipeline */
+    .availability-check {
+        margin: 2rem 5vw !important;
+        padding: 2rem 1.5rem !important;
+    }
+    .availability-check > div {
+        flex-direction: column !important;
+        gap: 2rem !important;
+    }
+    .availability-check div[style*="display: flex"][style*="gap: 1rem"] {
+        width: 100%;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: stretch !important;
+    }
+    .availability-check input, .availability-check button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* VR Solutions Grid */
+    .vr-solutions-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+    .vr-solutions-grid > div {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0 0 1.5rem 0 !important;
+    }
+    .vr-solutions-grid > div:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Hardware Showcase */
+    .marquee-track img {
+        height: 250px !important;
+    }
+    .marquee-track {
+        gap: 50px !important;
+    }
+
+    /* General Typography */
+    .section-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 2rem !important;
+    }
+}
+
