@@ -1199,44 +1199,55 @@ body { top: 0 !important; }
 /* --- MOBILE RESPONSIVENESS OVERHAUL --- */
 @media (max-width: 768px) {
     /* Global Navigation Fixes */
-    nav {
+    nav.glass-header {
         padding: 1rem !important;
         flex-direction: column !important;
-        gap: 1rem !important;
+        gap: 0.5rem !important;
         height: auto !important;
-        background: rgba(5, 0, 10, 0.95) !important;
         position: relative !important;
+        background: rgba(5, 0, 10, 0.95) !important;
     }
     .logo {
-        font-size: 1.5rem !important;
+        font-size: 1.2rem !important;
         gap: 10px !important;
         width: 100% !important;
         justify-content: center !important;
-    }
-    .logo-img {
-        height: 60px !important;
-    }
-    .nav-links {
-        display: none !important; 
-    }
-    .language-switcher {
-        order: 2;
-    }
-    .cta-nav {
-        order: 3;
-        width: 100%;
         text-align: center;
     }
+    .logo-img {
+        height: 40px !important;
+    }
+    .nav-links {
+        display: flex !important;
+        gap: 1rem !important;
+        font-size: 0.75rem !important;
+        width: 100%;
+        justify-content: center;
+    }
+    nav div[style*="display:flex"] {
+        width: 100%;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+    .language-switcher {
+        height: 30px !important;
+    }
+    .cta-nav {
+        padding: 0.4rem 1rem !important;
+        font-size: 0.7rem !important;
+    }
 
-    /* Hero Section Stacking */
+    /* Hero Section Stacking Fix */
     .hero-section {
         height: auto !important;
     }
     .hero-sticky-container {
         position: relative !important;
+        display: flex !important;
         flex-direction: column !important;
         height: auto !important;
-        padding-top: 40px;
+        min-height: 100vh;
+        padding-top: 2rem;
     }
     .parallax-hud {
         width: 100% !important;
@@ -1244,60 +1255,65 @@ body { top: 0 !important; }
         align-items: center !important;
         text-align: center !important;
         pointer-events: all !important;
-    }
-    .hero-title {
-        font-size: 2.2rem !important;
-    }
-    .hero-subtitle {
-        font-size: 1rem !important;
-    }
-    .hero-actions {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 2rem;
+        position: relative !important;
+        z-index: 20 !important;
     }
     .parallax-mid {
         width: 100% !important;
-        height: 300px !important;
-        margin-top: 2rem;
+        height: 350px !important;
+        position: relative !important;
+        z-index: 10 !important;
+        margin-top: -3rem; /* Overlap slightly for style */
     }
     #hero-canvas {
         height: 100% !important;
         width: auto !important;
-        max-width: 100%;
+        max-width: 100% !important;
+        object-fit: contain !important;
+    }
+    .hero-title {
+        font-size: 2rem !important;
+    }
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+    .hero-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.8rem;
     }
 
     /* Availability Capture Pipeline */
     .availability-check {
-        margin: 2rem 5vw !important;
-        padding: 2rem 1.5rem !important;
+        margin: 1rem 5vw 2rem !important;
+        padding: 1.5rem !important;
+        z-index: 40 !important;
     }
     .availability-check > div {
         flex-direction: column !important;
-        gap: 2rem !important;
+        gap: 1.5rem !important;
     }
-    .availability-check div[style*="display: flex"][style*="gap: 1rem"] {
+    .availability-check div[style*="flex: 2"] {
         width: 100%;
         flex-direction: column !important;
         gap: 1rem !important;
         align-items: stretch !important;
     }
-    .availability-check input, .availability-check button {
-        width: 100% !important;
-        min-width: 0 !important;
+    .availability-check label {
+        text-align: left;
     }
 
-    /* VR Solutions Grid */
+    /* VR Solutions Grid Stacking */
     .vr-solutions-grid {
-        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 2rem !important;
     }
     .vr-solutions-grid > div {
         border-right: none !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding: 0 0 1.5rem 0 !important;
+        width: 100% !important;
     }
     .vr-solutions-grid > div:last-child {
         border-bottom: none !important;
@@ -1305,16 +1321,17 @@ body { top: 0 !important; }
 
     /* Hardware Showcase */
     .marquee-track img {
-        height: 250px !important;
+        height: 200px !important;
     }
     .marquee-track {
-        gap: 50px !important;
+        gap: 40px !important;
     }
 
     /* General Typography */
     .section-title {
-        font-size: 1.8rem !important;
+        font-size: 1.6rem !important;
         margin-bottom: 2rem !important;
     }
 }
+
 
