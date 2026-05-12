@@ -200,8 +200,22 @@
                         <h4 style="color: var(--clr-primary);">AUTHORIZATION TOTAL</h4>
                         <p style="font-size:0.85rem; color:var(--clr-text-muted);">Includes all hardware components and active logistics.</p>
                     </div>
-                    <div class="summary-total" id="step1-total">$0.00</div>
+                    <div style="text-align: right;">
+                        <div id="original-total" style="font-size: 1rem; color: var(--clr-text-muted); text-decoration: line-through; display: none;">$0.00</div>
+                        <div class="summary-total" id="step1-total" style="font-size: 2.2rem;">$0.00</div>
+                    </div>
                 </div>
+
+                <!-- Promo Code Section -->
+                <div id="promo-container" style="margin: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 8px;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--clr-primary); margin-bottom: 0.5rem; letter-spacing: 1px;">PROMOTION CODE</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="promo-code" placeholder="ENTER CODE" style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 0.8rem; color: white; border-radius: 4px; font-family: monospace; text-transform: uppercase;">
+                        <button type="button" class="variant-btn" id="promo-btn" onclick="validatePromo()" style="padding: 0 1.5rem; white-space: nowrap;">APPLY CODE</button>
+                    </div>
+                    <p id="promo-msg" style="margin-top: 0.5rem; font-size: 0.8rem; display: none;"></p>
+                </div>
+
                 <div style="padding: 0 1.5rem 1.5rem;">
                     <p style="color:rgb(255, 100, 100); font-weight:600; font-size:0.9rem; margin-bottom:4px;">+ A temporary security hold of $1,000.00 will be authorized on the day of your deployment.</p>
                     <p style="color:var(--clr-text-muted); font-size:0.8rem; line-height:1.4;">By completing this checkout, we securely vault your payment method. You will not be charged the $1,000 hold today. The pre-authorization hold only triggers automatically on the morning of your scheduled rental.</p>
@@ -831,7 +845,8 @@
                     locationType: document.getElementById("guest-location").value,
                     mode: payload.mode,
                     signature: document.getElementById("sig-name").value,
-                    bookingId: "FBVR-" + Date.now().toString(36).toUpperCase()
+                    bookingId: "FBVR-" + Date.now().toString(36).toUpperCase(),
+                    promoCode: document.getElementById("promo-code").value.toUpperCase()
                 };
                 
                 window.activeBookingId = customerData.bookingId;
@@ -1097,6 +1112,67 @@
                 localStorage.removeItem("vr_checkout_payload");
             }
         });
+        // Promotion System Logic
+        async function validatePromo() {
+            const code = document.getElementById("promo-code").value.trim();
+            const btn = document.getElementById("promo-btn");
+            const msg = document.getElementById("promo-msg");
+            const totalEl = document.getElementById("step1-total");
+            const originalEl = document.getElementById("original-total");
+
+            if(!code) return;
+
+            btn.disabled = true;
+            btn.innerText = "VERIFYING...";
+            msg.style.display = 'none';
+
+            try {
+                const response = await fetch("/api/validate-promo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    let discount = 0;
+                    const baseTotal = parseFloat(payload.finalTotal);
+
+                    if (data.discountType === 'percent') {
+                        discount = baseTotal * (data.discountValue / 100);
+                    } else {
+                        discount = data.discountValue;
+                    }
+
+                    const newTotal = Math.max(0, baseTotal - discount);
+                    
+                    // Update UI
+                    originalEl.innerText = "$" + baseTotal.toFixed(2);
+                    originalEl.style.display = 'block';
+                    totalEl.innerText = "$" + newTotal.toFixed(2);
+                    totalEl.style.color = 'var(--clr-hover-glow)';
+                    
+                    msg.innerText = `PROMO APPLIED: $${discount.toFixed(2)} DISCOUNT`;
+                    msg.style.color = 'var(--clr-hover-glow)';
+                    msg.style.display = 'block';
+                    btn.innerText = "APPLIED";
+                    
+                    // Update payload for Stripe (though backend will re-validate)
+                    // payload.discountedTotal = newTotal; 
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                msg.innerText = err.message || "Invalid Promo Code";
+                msg.style.color = "#ff3333";
+                msg.style.display = 'block';
+                btn.innerText = "APPLY CODE";
+                btn.disabled = false;
+                originalEl.style.display = 'none';
+                totalEl.style.color = 'white';
+                totalEl.innerText = "$" + parseFloat(payload.finalTotal).toFixed(2);
+            }
+        }
     </script>
 </body>
 </html>

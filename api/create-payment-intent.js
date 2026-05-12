@@ -21,6 +21,38 @@ module.exports = async (req, res) => {
 
     try {
         const { amount, currency, bookingDetails } = req.body;
+        const { promoCode } = bookingDetails;
+
+        let finalAmount = amount;
+        let appliedDiscount = 0;
+
+        // Backend Promo Validation
+        if (promoCode) {
+            try {
+                const { createClient } = require('@supabase/supabase-js');
+                const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+                
+                const { data: promo } = await supabase
+                    .from('promotions')
+                    .select('*')
+                    .eq('code', promoCode.toUpperCase())
+                    .eq('is_active', true)
+                    .single();
+
+                if (promo) {
+                    if (promo.discount_type === 'percent') {
+                        appliedDiscount = amount * (promo.discount_value / 100);
+                    } else {
+                        appliedDiscount = promo.discount_value;
+                    }
+                    finalAmount = Math.max(0, amount - appliedDiscount);
+                    console.log(`Promo Applied: ${promoCode} | Discount: $${appliedDiscount}`);
+                }
+            } catch (supaErr) {
+                console.error("Supabase Promo Check Failed:", supaErr);
+                // Continue with original amount if DB fails, or you could fail the request
+            }
+        }
 
         // Backend Hard Limits: 10 PM Cutoff Validator
         if (bookingDetails.time && bookingDetails.duration) {
@@ -40,7 +72,7 @@ module.exports = async (req, res) => {
         const holdAmount = 1000;
 
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100), 
+            amount: Math.round(finalAmount * 100), 
             currency: currency || 'cad',
             setup_future_usage: 'off_session', 
             automatic_payment_methods: {
@@ -57,7 +89,10 @@ module.exports = async (req, res) => {
                 clientIp: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
                 timestamp: new Date().toISOString(),
                 signature: bookingDetails.signature,
-                baseCharge: amount,
+                promoCode: promoCode || 'NONE',
+                discountApplied: appliedDiscount,
+                originalAmount: amount,
+                finalCharged: finalAmount,
                 securityHold: holdAmount
             }
         });
