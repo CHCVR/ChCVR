@@ -80,12 +80,24 @@ module.exports = async (req, res) => {
             </div>
         `;
 
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: 'Full Body VR <updates@fullbodyvr.ca>',
             to: email,
             subject: welcomeSubject,
             html: emailHtml
         });
+
+        if (error) {
+            console.error('Resend Error:', error);
+            // If it's a domain verification issue, provide a hint
+            if (error.message && error.message.includes('not verified')) {
+                 return res.status(400).json({ 
+                    success: false, 
+                    error: 'Domain not verified. Please verify fullbodyvr.ca in Resend or use onboarding@resend.dev' 
+                });
+            }
+            throw error;
+        }
 
         res.status(200).json({ 
             success: true, 

@@ -437,7 +437,12 @@
                     });
                     const data = await res.json();
 
-                    feedback.innerText = data.message || (lang === 'fr' ? 'Succès !' : 'Success!');
+                    if (!data.success && data.error) {
+                        feedback.innerText = data.error;
+                    } else {
+                        feedback.innerText = data.message || (lang === 'fr' ? 'Succès !' : 'Success!');
+                    }
+                    
                     feedback.style.color = data.success ? 'var(--clr-hover-glow)' : '#ff3333';
                     feedback.style.display = 'block';
                     
