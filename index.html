@@ -400,7 +400,62 @@
                 realities delivered directly to your door.
             </p>
         </section>
+        <!-- Newsletter Hub -->
+        <section class="newsletter-section" style="padding: 6rem 10vw; background: linear-gradient(to bottom, transparent, rgba(213,0,255,0.05)); border-top: 1px solid var(--glass-border);">
+            <div class="glass-panel" style="padding: 4rem; text-align: center; border-radius: 20px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: var(--clr-primary); filter: blur(120px); opacity: 0.2;"></div>
+                
+                <h2 class="section-title" data-en="STAY IN THE LOOP" data-fr="RESTEZ INFORMÉ" style="margin-bottom: 1rem;">STAY IN THE LOOP</h2>
+                <p style="color: var(--clr-text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 3rem;" data-en="Receive tactical updates, hardware drops, and exclusive deployment promotions directly to your inbox." data-fr="Recevez des mises à jour tactiques, des sorties de matériel et des promotions de déploiement exclusives directement dans votre boîte de réception.">Receive tactical updates, hardware drops, and exclusive deployment promotions directly to your inbox.</p>
+                
+                <form id="newsletter-form" onsubmit="handleNewsletter(event)" style="display: flex; gap: 1rem; max-width: 600px; margin: 0 auto; flex-wrap: wrap;">
+                    <input type="email" id="news-email" required placeholder="Enter your email address" data-en="Enter your email address" data-fr="Entrez votre adresse e-mail" style="flex: 2; min-width: 250px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 1.2rem; color: white; border-radius: 8px; font-size: 1rem;">
+                    <button type="submit" class="cta-primary" style="flex: 1; min-width: 150px; padding: 1.2rem;" data-en="ENLIST NOW" data-fr="S'INSCRIRE MAINTENANT">ENLIST NOW</button>
+                </form>
+                <p id="news-feedback" style="margin-top: 1.5rem; font-family: var(--font-heading); font-weight: 700; display: none;"></p>
+            </div>
+        </section>
+
+        <script>
+            async function handleNewsletter(e) {
+                e.preventDefault();
+                const email = document.getElementById('news-email').value;
+                const btn = e.target.querySelector('button');
+                const feedback = document.getElementById('news-feedback');
+                const lang = localStorage.getItem('preferred_lang') || 'en';
+
+                const originalText = btn.innerText;
+                btn.disabled = true;
+                btn.innerText = lang === 'fr' ? 'TRAITEMENT...' : 'PROCESSING...';
+                feedback.style.display = 'none';
+
+                try {
+                    const res = await fetch('/api/newsletter-signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, lang })
+                    });
+                    const data = await res.json();
+
+                    feedback.innerText = data.message || (lang === 'fr' ? 'Succès !' : 'Success!');
+                    feedback.style.color = data.success ? 'var(--clr-hover-glow)' : '#ff3333';
+                    feedback.style.display = 'block';
+                    
+                    if (data.success) {
+                        document.getElementById('news-email').value = '';
+                    }
+                } catch (err) {
+                    feedback.innerText = lang === 'fr' ? 'Erreur de connexion.' : 'Connection error.';
+                    feedback.style.color = '#ff3333';
+                    feedback.style.display = 'block';
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+        </script>
     </main>
+
 
     <!-- Main Footer -->
     <footer class="main-footer">
