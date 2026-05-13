@@ -1197,6 +1197,15 @@ body { top: 0 !important; }
 }
 
 /* --- MOBILE RESPONSIVENESS OVERHAUL --- */
+@media (max-width: 1200px) {
+    .hero-title {
+        font-size: 3.5rem !important;
+    }
+    .parallax-hud {
+        padding-left: 5vw !important;
+    }
+}
+
 @media (max-width: 768px) {
     /* Global Navigation Fixes */
     nav.glass-header {
